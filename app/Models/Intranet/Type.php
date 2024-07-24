@@ -18,4 +18,9 @@ class Type extends Model
     {
         return $this->hasMany(Feature::class, 'type_id');
     }
+
+    public function vehicles()
+    {
+        return $this->hasMany(Vehicle::class, 'type_id');
+    }
 }

@@ -6,6 +6,7 @@ use App\Http\Controllers\Intranet\TypeController;
 use App\Http\Controllers\Intranet\BrandController;
 use App\Http\Controllers\Intranet\StateController;
 use App\Http\Controllers\Intranet\FeatureController;
+use App\Http\Controllers\Intranet\VehicleController;
 use App\Http\Controllers\Intranet\MunicipalityController;
 
 /*
@@ -28,12 +29,15 @@ Route::middleware(['auth:sanctum', 'cors'])->group(function () {
     Route::get('municipality/state/{id}', [MunicipalityController::class, 'getPerState']);
     Route::get('type/key/{key}', [TypeController::class, 'getPerKey']);
     Route::get('feature/type/{type}', [FeatureController::class, 'getPerType']);
+    Route::get('vehicle/options', [VehicleController::class, 'getOptions']);
+    Route::post('vehicles', [VehicleController::class, 'index']);
 
     Route::apiResource('state', StateController::class);
     Route::apiResource('municipality', MunicipalityController::class);
     Route::apiResource('type', TypeController::class);
     Route::apiResource('feature', FeatureController::class);
     Route::apiResource('brand', BrandController::class);
+    Route::apiResource('vehicle', VehicleController::class);
 
 });
 

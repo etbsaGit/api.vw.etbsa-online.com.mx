@@ -41,4 +41,9 @@ class Brand extends Model
             Storage::disk('s3')->delete($brand->logo);
         });
     }
+
+    public function vehicles()
+    {
+        return $this->hasMany(Vehicle::class, 'brand_id');
+    }
 }

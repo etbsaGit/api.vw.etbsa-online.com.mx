@@ -14,4 +14,22 @@ trait Scopes
             }
         }
     }
+
+    public function scopeFilterPage(Builder $query, array $filters)
+    {
+        foreach ($filters as $key => $value) {
+            if ($value !== null && $key !== 'page') {
+                if ($key === 'search') {
+                    $query->where(function ($query) use ($value) {
+                        $query->where('sku', 'LIKE', '%' . $value . '%')
+                            ->orWhere('name', 'LIKE', '%' . $value . '%')
+                            ->orWhere('description', 'LIKE', '%' . $value . '%');
+                    });
+                } else {
+                    $query->where($key, $value);
+                }
+            }
+        }
+        return $query;
+    }
 }
