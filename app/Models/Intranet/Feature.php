@@ -18,4 +18,9 @@ class Feature extends Model
     {
         return $this->belongsTo(Type::class, 'type_id');
     }
+
+    public function vehicles()
+    {
+        return $this->hasOne(VehicleFeature::class, 'feature_id');
+    }
 }

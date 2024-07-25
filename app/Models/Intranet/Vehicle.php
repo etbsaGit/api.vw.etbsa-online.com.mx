@@ -32,4 +32,9 @@ class Vehicle extends Model
     {
         return $this->belongsTo(Brand::class, 'brand_id');
     }
+
+    public function features()
+    {
+        return $this->hasOne(VehicleFeature::class, 'vehicle_id');
+    }
 }
