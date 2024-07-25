@@ -52,7 +52,21 @@ class VehicleFeatureController extends ApiController
      */
     public function update(StoreVehicleFeatureRequest $request, VehicleFeature $vehicleFeature)
     {
-        $vehicleFeature->update($request->validated());
+        $data = $request->validated();
+
+        // Verificar si ya existe una combinación vehicle_id y feature_id
+        // Excluyendo el registro actual de la verificación
+        if (VehicleFeature::where('vehicle_id', $data['vehicle_id'])
+            ->where('feature_id', $data['feature_id'])
+            ->where('id', '!=', $vehicleFeature->id)
+            ->exists()
+        ) {
+            return response()->json(['error' => 'El vehiculo ya tiene la caracteristica'], 422);
+        }
+
+        // Si no existe una combinación duplicada, proceder con la actualización
+        $vehicleFeature->update($data);
+
         return $this->respond($vehicleFeature);
     }
 

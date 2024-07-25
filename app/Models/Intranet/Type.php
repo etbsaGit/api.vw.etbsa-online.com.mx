@@ -23,4 +23,9 @@ class Type extends Model
     {
         return $this->hasMany(Vehicle::class, 'type_id');
     }
+
+    public function prices()
+    {
+        return $this->hasMany(Price::class, 'type_id');
+    }
 }
