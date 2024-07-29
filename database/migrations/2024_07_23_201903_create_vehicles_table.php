@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('vehicles', function (Blueprint $table) {
             $table->id();
-            $table->string('sku')->unique();
-            $table->string('name');
-            $table->text('description')->nullable();
+            $table->string('sku', 191)->unique();
+            $table->string('name', 191);
+            $table->text('description', 191)->nullable();
             $table->unsignedInteger('quantity')->default(0);
             $table->boolean('active')->default(1);
             $table->boolean('featured')->default(0);

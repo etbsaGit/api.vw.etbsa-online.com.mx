@@ -32,4 +32,23 @@ trait Scopes
         }
         return $query;
     }
+
+    public function scopeFilterCustomers(Builder $query, array $filters)
+    {
+        foreach ($filters as $key => $value) {
+            if ($value !== null && $key !== 'page') {
+                if ($key === 'search') {
+                    $query->where(function ($query) use ($value) {
+                        $query->where('name', 'LIKE', '%' . $value . '%')
+                            ->orWhere('rfc', 'LIKE', '%' . $value . '%')
+                            ->orWhere('phone', 'LIKE', '%' . $value . '%')
+                            ->orWhere('email', 'LIKE', '%' . $value . '%');
+                    });
+                } else {
+                    $query->where($key, $value);
+                }
+            }
+        }
+        return $query;
+    }
 }

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('municipalities', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('name', 191);
             $table->unsignedBigInteger('state_id')->nullable();
             $table->foreign('state_id')->references('id')->on('states')->onDelete('restrict');
             $table->timestamps();

@@ -26,9 +26,9 @@ class PutVehicleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'sku' => ['required', 'string', 'max:255', Rule::unique('vehicles')->ignore($this->route("vehicle")->id)],
+            'sku' => ['nullable', 'string', 'max:255', Rule::unique('vehicles')->ignore($this->route("vehicle")->id)],
             'name' => ['required', 'string', 'max:255'],
-            'description' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string', 'max:255'],
             'quantity' => ['nullable', 'integer'],
             'active' => ['required', 'boolean'],
             'featured' => ['required', 'boolean'],

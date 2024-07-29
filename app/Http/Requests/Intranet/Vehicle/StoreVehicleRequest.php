@@ -25,9 +25,9 @@ class StoreVehicleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'sku' => ['required', 'string', 'unique:vehicles', 'max:255'],
+            'sku' => ['nullable', 'string', 'unique:vehicles', 'max:255'],
             'name' => ['required', 'string', 'max:255'],
-            'description' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string', 'max:255'],
             'quantity' => ['nullable', 'integer'],
             'active' => ['required','boolean'],
             'featured' => ['required','boolean'],

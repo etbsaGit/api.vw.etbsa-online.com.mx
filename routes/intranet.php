@@ -8,6 +8,7 @@ use App\Http\Controllers\Intranet\PriceController;
 use App\Http\Controllers\Intranet\StateController;
 use App\Http\Controllers\Intranet\FeatureController;
 use App\Http\Controllers\Intranet\VehicleController;
+use App\Http\Controllers\Intranet\CustomerController;
 use App\Http\Controllers\Intranet\VehicleDocController;
 use App\Http\Controllers\Intranet\MunicipalityController;
 use App\Http\Controllers\Intranet\VehicleFeatureController;
@@ -37,6 +38,8 @@ Route::middleware(['auth:sanctum', 'cors'])->group(function () {
     Route::get('vehicleFeature/vehicle/{id}', [VehicleFeatureController::class, 'getPerVehicle']);
     Route::get('price/vehicle/{id}', [PriceController::class, 'getPerVehicle']);
     Route::get('vehicleDoc/vehicle/{id}', [VehicleDocController::class, 'getPerVehicle']);
+    Route::post('customers', [CustomerController::class, 'index']);
+    Route::get('customer/options', [CustomerController::class, 'getOptions']);
 
 
     Route::apiResource('state', StateController::class);
@@ -48,4 +51,5 @@ Route::middleware(['auth:sanctum', 'cors'])->group(function () {
     Route::apiResource('vehicleFeature', VehicleFeatureController::class);
     Route::apiResource('price', PriceController::class);
     Route::apiResource('vehicleDoc', VehicleDocController::class);
+    Route::apiResource('customer', CustomerController::class);
 });

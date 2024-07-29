@@ -20,7 +20,7 @@ return new class extends Migration
             $table->unsignedBigInteger('feature_id')->onDelete('cascade');
             $table->foreign('feature_id')->references('id')->on('features');
 
-            $table->string('value');
+            $table->string('value', 191);
 
             $table->timestamps();
         });

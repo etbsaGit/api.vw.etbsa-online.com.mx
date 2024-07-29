@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('vehicle_docs', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('extension');
-            $table->string('path');
+            $table->string('name', 191);
+            $table->string('extension', 191);
+            $table->string('path', 191);
 
             $table->unsignedBigInteger('type_id')->onDelete('cascade');
             $table->foreign('type_id')->references('id')->on('types');
