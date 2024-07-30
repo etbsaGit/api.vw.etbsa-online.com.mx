@@ -40,6 +40,7 @@ Route::middleware(['auth:sanctum', 'cors'])->group(function () {
     Route::get('vehicleDoc/vehicle/{id}', [VehicleDocController::class, 'getPerVehicle']);
     Route::post('customers', [CustomerController::class, 'index']);
     Route::get('customer/options', [CustomerController::class, 'getOptions']);
+    Route::post('customer/excel', [CustomerController::class, 'insetExcel']);
 
 
     Route::apiResource('state', StateController::class);

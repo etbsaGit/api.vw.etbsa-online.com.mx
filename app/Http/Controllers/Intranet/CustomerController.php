@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Intranet;
 
 use Illuminate\Http\Request;
+use App\Models\Intranet\Type;
 use App\Models\Intranet\State;
+use App\Imports\CustomerImport;
 use App\Models\Intranet\Customer;
+use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Controllers\ApiController;
 use App\Http\Requests\Intranet\Customer\PutCustomerRequest;
 use App\Http\Requests\Intranet\Customer\StoreCustomerRequest;
-use App\Models\Intranet\Type;
 
 class CustomerController extends ApiController
 {
@@ -18,7 +20,7 @@ class CustomerController extends ApiController
     public function index(Request $request)
     {
         $filters = $request->all();
-        $customer = Customer::filterCustomers($filters)->with('municipality','state','type')->paginate(10);
+        $customer = Customer::filterCustomers($filters)->with('municipality', 'state', 'type')->paginate(10);
         return $this->respond($customer);
     }
 
@@ -66,4 +68,22 @@ class CustomerController extends ApiController
 
         return $this->respond($data);
     }
+
+    public function insetExcel(Request $request)
+    {
+        // Validar que el archivo sea un archivo .xlsx
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls',
+        ]);
+
+        // Obtener el archivo cargado
+        $file = $request->file('file');
+
+        // Importar el archivo .xlsx usando el importador
+        Excel::import(new CustomerImport, $file);
+
+        return $this->respond("Clientes importados con exito");
+
+    }
+
 }
