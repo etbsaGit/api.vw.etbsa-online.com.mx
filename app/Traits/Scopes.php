@@ -51,4 +51,24 @@ trait Scopes
         }
         return $query;
     }
+
+    public function scopeFilterEmployees(Builder $query, array $filters)
+    {
+        foreach ($filters as $key => $value) {
+            if ($value !== null && $key !== 'page') {
+                if ($key === 'search') {
+                    $query->where(function ($query) use ($value) {
+                        $query->where('first_name', 'LIKE', '%' . $value . '%')
+                            ->orWhere('middle_name', 'LIKE', '%' . $value . '%')
+                            ->orWhere('paternal_surname', 'LIKE', '%' . $value . '%')
+                            ->orWhere('maternal_surname', 'LIKE', '%' . $value . '%')
+                            ->orWhere('rfc', 'LIKE', '%' . $value . '%');
+                    });
+                } else {
+                    $query->where($key, $value);
+                }
+            }
+        }
+        return $query;
+    }
 }

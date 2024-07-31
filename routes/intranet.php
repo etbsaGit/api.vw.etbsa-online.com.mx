@@ -11,6 +11,7 @@ use App\Http\Controllers\Intranet\StatusController;
 use App\Http\Controllers\Intranet\FeatureController;
 use App\Http\Controllers\Intranet\VehicleController;
 use App\Http\Controllers\Intranet\CustomerController;
+use App\Http\Controllers\Intranet\EmployeeController;
 use App\Http\Controllers\Intranet\VehicleDocController;
 use App\Http\Controllers\Intranet\MunicipalityController;
 use App\Http\Controllers\Intranet\VehicleFeatureController;
@@ -44,6 +45,8 @@ Route::middleware(['auth:sanctum', 'cors'])->group(function () {
     Route::get('customer/options', [CustomerController::class, 'getOptions']);
     Route::post('customer/excel', [CustomerController::class, 'insetExcel']);
     Route::get('status/key/{key}', [StatusController::class, 'getPerKey']);
+    Route::post('employees', [EmployeeController::class, 'index']);
+    Route::get('employee/options', [EmployeeController::class, 'getOptions']);
 
     Route::apiResource('state', StateController::class);
     Route::apiResource('municipality', MunicipalityController::class);
@@ -57,4 +60,5 @@ Route::middleware(['auth:sanctum', 'cors'])->group(function () {
     Route::apiResource('customer', CustomerController::class);
     Route::apiResource('status', StatusController::class);
     Route::apiResource('agency', AgencyController::class);
+    Route::apiResource('employee', EmployeeController::class);
 });

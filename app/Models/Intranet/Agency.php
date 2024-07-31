@@ -13,4 +13,9 @@ class Agency extends Model
         'name',
         'address'
     ];
+
+    public function employees()
+    {
+        return $this->hasMany(Employee::class, 'agency_id');
+    }
 }
