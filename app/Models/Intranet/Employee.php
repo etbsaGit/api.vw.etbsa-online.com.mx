@@ -32,4 +32,9 @@ class Employee extends Model
     {
         return $this->belongsTo(Agency::class, 'agency_id');
     }
+
+    public function sales()
+    {
+        return $this->hasMany(Sale::class, 'employee_id');
+    }
 }

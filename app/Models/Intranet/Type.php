@@ -38,4 +38,14 @@ class Type extends Model
     {
         return $this->hasMany(Customer::class, 'type_id');
     }
+
+    public function channel()
+    {
+        return $this->hasMany(Sale::class, 'sales_channel_id');
+    }
+
+    public function sales()
+    {
+        return $this->hasMany(Sale::class, 'type_id');
+    }
 }

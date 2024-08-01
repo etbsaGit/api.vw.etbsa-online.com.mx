@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Intranet\SaleController;
 use App\Http\Controllers\Intranet\TypeController;
 use App\Http\Controllers\Intranet\BrandController;
 use App\Http\Controllers\Intranet\PriceController;
@@ -47,6 +48,8 @@ Route::middleware(['auth:sanctum', 'cors'])->group(function () {
     Route::get('status/key/{key}', [StatusController::class, 'getPerKey']);
     Route::post('employees', [EmployeeController::class, 'index']);
     Route::get('employee/options', [EmployeeController::class, 'getOptions']);
+    Route::post('sales', [SaleController::class, 'index']);
+    Route::get('sale/options', [SaleController::class, 'getOptions']);
 
     Route::apiResource('state', StateController::class);
     Route::apiResource('municipality', MunicipalityController::class);
@@ -61,4 +64,5 @@ Route::middleware(['auth:sanctum', 'cors'])->group(function () {
     Route::apiResource('status', StatusController::class);
     Route::apiResource('agency', AgencyController::class);
     Route::apiResource('employee', EmployeeController::class);
+    Route::apiResource('sale', SaleController::class);
 });

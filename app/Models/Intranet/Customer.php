@@ -42,4 +42,9 @@ class Customer extends Model
     {
         return $this->belongsTo(Type::class, 'type_id');
     }
+
+    public function sales()
+    {
+        return $this->hasMany(Sale::class, 'customer_id');
+    }
 }

@@ -71,4 +71,21 @@ trait Scopes
         }
         return $query;
     }
+
+    public function scopeFilterSales(Builder $query, array $filters)
+    {
+        foreach ($filters as $key => $value) {
+            if ($value !== null && $key !== 'page') {
+                if ($key === 'search') {
+                    $query->where(function ($query) use ($value) {
+                        $query->where('id_sale', 'LIKE', '%' . $value . '%')
+                            ->orWhere('series_vehicle', 'LIKE', '%' . $value . '%');
+                    });
+                } else {
+                    $query->where($key, $value);
+                }
+            }
+        }
+        return $query;
+    }
 }

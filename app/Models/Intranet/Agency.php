@@ -18,4 +18,9 @@ class Agency extends Model
     {
         return $this->hasMany(Employee::class, 'agency_id');
     }
+
+    public function sales()
+    {
+        return $this->hasMany(Sale::class, 'agency_id');
+    }
 }

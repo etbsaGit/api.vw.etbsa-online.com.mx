@@ -47,4 +47,9 @@ class Vehicle extends Model
     {
         return $this->hasMany(VehicleDoc::class, 'vehicle_id');
     }
+
+    public function sales()
+    {
+        return $this->hasMany(Sale::class, 'vehicle_id');
+    }
 }
