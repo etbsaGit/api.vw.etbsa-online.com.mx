@@ -60,4 +60,9 @@ class Sale extends Model
     {
         return $this->belongsTo(Employee::class, 'employee_id');
     }
+
+    public function dates()
+    {
+        return $this->hasMany(SaleDate::class, 'sale_id');
+    }
 }

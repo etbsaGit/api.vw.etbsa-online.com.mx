@@ -13,6 +13,7 @@ use App\Http\Controllers\Intranet\FeatureController;
 use App\Http\Controllers\Intranet\VehicleController;
 use App\Http\Controllers\Intranet\CustomerController;
 use App\Http\Controllers\Intranet\EmployeeController;
+use App\Http\Controllers\Intranet\SaleDateController;
 use App\Http\Controllers\Intranet\VehicleDocController;
 use App\Http\Controllers\Intranet\MunicipalityController;
 use App\Http\Controllers\Intranet\VehicleFeatureController;
@@ -50,6 +51,7 @@ Route::middleware(['auth:sanctum', 'cors'])->group(function () {
     Route::get('employee/options', [EmployeeController::class, 'getOptions']);
     Route::post('sales', [SaleController::class, 'index']);
     Route::get('sale/options', [SaleController::class, 'getOptions']);
+    Route::get('saleDate/sale/{id}', [SaleDateController::class, 'getPerSale']);
 
     Route::apiResource('state', StateController::class);
     Route::apiResource('municipality', MunicipalityController::class);
@@ -65,4 +67,5 @@ Route::middleware(['auth:sanctum', 'cors'])->group(function () {
     Route::apiResource('agency', AgencyController::class);
     Route::apiResource('employee', EmployeeController::class);
     Route::apiResource('sale', SaleController::class);
+    Route::apiResource('saleDate', SaleDateController::class);
 });

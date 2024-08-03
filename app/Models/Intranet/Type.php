@@ -48,4 +48,9 @@ class Type extends Model
     {
         return $this->hasMany(Sale::class, 'type_id');
     }
+
+    public function dates()
+    {
+        return $this->hasMany(SaleDate::class, 'type_id');
+    }
 }

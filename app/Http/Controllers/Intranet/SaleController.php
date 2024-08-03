@@ -4,15 +4,16 @@ namespace App\Http\Controllers\Intranet;
 
 use Illuminate\Http\Request;
 use App\Models\Intranet\Sale;
+use App\Models\Intranet\Type;
+use App\Models\Intranet\Agency;
+use App\Models\Intranet\Status;
 use App\Models\Intranet\Vehicle;
+use App\Models\Intranet\Customer;
+use App\Models\Intranet\Employee;
+use App\Models\Intranet\SaleDate;
 use App\Http\Controllers\ApiController;
 use App\Http\Requests\Intranet\Sale\PutSaleRequest;
 use App\Http\Requests\Intranet\Sale\StoreSaleRequest;
-use App\Models\Intranet\Agency;
-use App\Models\Intranet\Customer;
-use App\Models\Intranet\Employee;
-use App\Models\Intranet\Status;
-use App\Models\Intranet\Type;
 
 class SaleController extends ApiController
 {
@@ -22,7 +23,11 @@ class SaleController extends ApiController
     public function index(Request $request)
     {
         $filters = $request->all();
-        $sales = Sale::filterSales($filters)->with('vehicle','status','salesChannel','type','agency','customer','employee')->paginate(10);
+        $salesQuery = Sale::filterSales($filters)
+            ->with('vehicle', 'status', 'salesChannel', 'type', 'agency', 'customer', 'employee')
+            ->orderBy('created_at', 'desc'); // Ordenar del más reciente al más viejo
+
+        $sales = $salesQuery->paginate(10);
         return $this->respond($sales);
     }
 
@@ -31,7 +36,21 @@ class SaleController extends ApiController
      */
     public function store(StoreSaleRequest $request)
     {
+        // Crear la venta
         $sale = Sale::create($request->validated());
+
+        // Obtener el ID del tipo con el nombre 'Registro'
+        $type = Type::where('name', 'Registro')->first();
+
+        if ($type) {
+            // Crear el registro en `sale_dates`
+            SaleDate::create([
+                'date' => $sale->created_at->format('Y-m-d'),
+                'sale_id' => $sale->id,
+                'type_id' => $type->id,
+            ]);
+        }
+
         return $this->respondCreated($sale);
     }
 
