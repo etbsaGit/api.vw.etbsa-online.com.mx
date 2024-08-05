@@ -98,7 +98,7 @@ class UserController extends ApiController
         ];
 
         if (Auth::attempt($credentials)) {
-            $user = User::where('email', $request->email)->first();
+            $user = User::where('email', $request->email)->first()->load('roles', 'permissions');
             $token = $user->createToken('myapptoken')->plainTextToken;
             $data = [
                 'user' => $user,
