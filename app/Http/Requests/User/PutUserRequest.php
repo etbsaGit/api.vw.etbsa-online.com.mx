@@ -3,11 +3,12 @@
 namespace App\Http\Requests\User;
 
 use Illuminate\Http\Response;
+use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Validation\ValidationException;
 
-class StoreUserRequest extends FormRequest
+class PutUserRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -40,12 +41,8 @@ class StoreUserRequest extends FormRequest
     {
         return [
             "name" => ['required', 'string', 'max:255'],
-            "email" => ['required', 'email', 'unique:users,email'],
-            "password" => ['required', 'string', 'max:255'],
-            'roles' => ['nullable','array'],
-            'roles.*' => ['nullable','string','exists:roles,name'],
-            'permissions' => ['nullable','array'],
-            'permissions.*' => ['nullable','string','exists:permissions,name'],
+            "email" => ['required', 'email', Rule::unique('users')->ignore($this->route("user")->id)],
+            "password" => ['nullable', 'string', 'max:255'],
         ];
     }
 
