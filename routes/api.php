@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\PermissionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 
 /*
@@ -21,9 +23,14 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::middleware(['auth:sanctum', 'cors'])->group(function () {
     //--------------------User--------------------
+    Route::get('user/options', [UserController::class, 'getOptions']);
     Route::post('auth/logout', [UserController::class, 'logout']);
     Route::post('auth/change', [UserController::class, 'changePassword']);
     Route::apiResource('user', UserController::class);
+
+    //--------------------Role--------------------
+    Route::apiResource('role', RoleController::class);
+    Route::apiResource('permission', PermissionController::class);
 });
 
 Route::post('auth/user', [UserController::class, 'store']);

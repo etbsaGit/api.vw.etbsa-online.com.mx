@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Requests\User;
+namespace App\Http\Requests\Role;
 
 use Illuminate\Http\Response;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Validation\ValidationException;
 
-class StoreUserRequest extends FormRequest
+class StoreRoleRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -18,20 +18,6 @@ class StoreUserRequest extends FormRequest
     }
 
     /**
-     * Prepare the data for validation.
-     *
-     * @return void
-     */
-    protected function prepareForValidation()
-    {
-        $email = $this->email;
-        $name = explode('@', $email)[0];
-        $this->merge([
-            'name' => $name,
-        ]);
-    }
-
-    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
@@ -39,13 +25,7 @@ class StoreUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "name" => ['required', 'string', 'max:255'],
-            "email" => ['required', 'email', 'unique:users,email'],
-            "password" => ['required', 'string', 'max:255'],
-            'roles' => ['nullable','array'],
-            'roles.*' => ['nullable','string','exists:roles,name'],
-            'permissions' => ['nullable','array'],
-            'permissions.*' => ['nullable','string','exists:permissions,name'],
+            'name' => ['required', 'unique:roles,name'],
         ];
     }
 

@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\ApiController;
+use Spatie\Permission\Models\Permission;
+use App\Http\Requests\User\PutUserRequest;
 use App\Http\Requests\User\PasswordRequest;
 use App\Http\Requests\User\StoreUserRequest;
 
@@ -18,7 +21,7 @@ class UserController extends ApiController
      */
     public function index()
     {
-        //
+        return $this->respond(User::with('roles','permissions')->get());
     }
 
     /**
@@ -26,8 +29,19 @@ class UserController extends ApiController
      */
     public function store(StoreUserRequest $request)
     {
+        $roles = $request->roles;
+        $permissions = $request->permissions;
+
         $user = User::create($request->validated());
-        return $this->respondCreated($user);
+
+        if (!empty($roles)) {
+            $user->syncRoles($roles);
+        }
+        if (!empty($permissions)) {
+            $user->syncPermissions($permissions);
+        }
+
+        return $this->respondCreated($user->load('roles', 'permissions'));
     }
 
     /**
@@ -41,9 +55,21 @@ class UserController extends ApiController
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, User $user)
+    public function update(PutUserRequest $request, User $user)
     {
-        //
+        $roles = $request->roles;
+        $permissions = $request->permissions;
+
+        if ($request->password) {
+            $user->update($request->validated());
+        } else {
+            $user->update($request->only(['name', 'email']));
+        }
+
+        $user->syncRoles($roles);
+        $user->syncPermissions($permissions);
+
+        return $this->respond($user->load('roles', 'permissions'));
     }
 
     /**
@@ -51,7 +77,17 @@ class UserController extends ApiController
      */
     public function destroy(User $user)
     {
-        //
+        $user->delete();
+        return $this->respondSuccess();
+    }
+
+    public function getOptions()
+    {
+        $data = [
+            'roles' => Role::all(),
+            'permissions' => Permission::all(),
+        ];
+        return $this->respond($data);
     }
 
     public function login(Request $request)
@@ -62,7 +98,7 @@ class UserController extends ApiController
         ];
 
         if (Auth::attempt($credentials)) {
-            $user = User::where('email', $request->email)->first();
+            $user = User::where('email', $request->email)->first()->load('roles', 'permissions');
             $token = $user->createToken('myapptoken')->plainTextToken;
             $data = [
                 'user' => $user,
