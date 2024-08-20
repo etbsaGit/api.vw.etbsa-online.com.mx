@@ -15,7 +15,7 @@ class AgencyController extends ApiController
      */
     public function index()
     {
-        return $this->respond(Agency::get());
+        return $this->respond(Agency::with('municipality','state')->get());
     }
 
     /**

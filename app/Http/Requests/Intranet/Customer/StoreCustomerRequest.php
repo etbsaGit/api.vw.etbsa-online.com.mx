@@ -32,7 +32,7 @@ class StoreCustomerRequest extends FormRequest
             "phone" => ['nullable', 'numeric', 'digits:10', 'unique:customers,phone'],
             "landline" => ['nullable', 'numeric', 'digits:10', 'unique:customers,landline'],
             'email' => ['nullable', 'email', 'unique:customers,email'],
-            "calle" => ['nullable', 'string', 'max:255'],
+            "street" => ['nullable', 'string', 'max:255'],
             "district" => ['nullable', 'string', 'max:255'],
             "zip_code" => ['nullable', 'numeric', 'digits:5'],
 

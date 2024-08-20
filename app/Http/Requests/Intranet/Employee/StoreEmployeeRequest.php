@@ -29,8 +29,14 @@ class StoreEmployeeRequest extends FormRequest
             'middle_name' => ['nullable', 'string', 'max:191'],
             'paternal_surname' => ['required', 'string', 'max:191'],
             'maternal_surname' => ['required', 'string', 'max:191'],
-            'rfc' => ['required', 'string', 'unique:employees', 'max:191'],
+            'rfc' => ['nullable', 'string', 'unique:employees,rfc', 'max:191'],
             'agency_id' => ['required', 'integer', 'exists:agencies,id'],
+            'sales_key' => ['nullable', 'string', 'unique:employees,sales_key', 'max:191'],
+            'phone' => ['required', 'string', 'unique:employees,phone', 'max:191'],
+            'base64' => ['nullable', 'string'],
+            'email' => ['nullable', 'email', 'unique:users,email'],
+            'type_id' => ['nullable', 'integer', 'exists:types,id'],
+            'position_id' => ['nullable', 'integer', 'exists:positions,id'],
         ];
     }
 
