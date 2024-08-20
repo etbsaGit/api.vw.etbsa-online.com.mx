@@ -62,7 +62,9 @@ trait Scopes
                             ->orWhere('middle_name', 'LIKE', '%' . $value . '%')
                             ->orWhere('paternal_surname', 'LIKE', '%' . $value . '%')
                             ->orWhere('maternal_surname', 'LIKE', '%' . $value . '%')
-                            ->orWhere('rfc', 'LIKE', '%' . $value . '%');
+                            ->orWhere('rfc', 'LIKE', '%' . $value . '%')
+                            ->orWhere('sales_key', 'LIKE', '%' . $value . '%')
+                            ->orWhere('phone', 'LIKE', '%' . $value . '%');
                     });
                 } else {
                     $query->where($key, $value);

@@ -13,6 +13,7 @@ use App\Http\Controllers\Intranet\FeatureController;
 use App\Http\Controllers\Intranet\VehicleController;
 use App\Http\Controllers\Intranet\CustomerController;
 use App\Http\Controllers\Intranet\EmployeeController;
+use App\Http\Controllers\Intranet\PositionController;
 use App\Http\Controllers\Intranet\SaleDateController;
 use App\Http\Controllers\Intranet\VehicleDocController;
 use App\Http\Controllers\Intranet\MunicipalityController;
@@ -49,10 +50,13 @@ Route::middleware(['auth:sanctum', 'cors'])->group(function () {
     Route::get('status/key/{key}', [StatusController::class, 'getPerKey']);
     Route::post('employees', [EmployeeController::class, 'index']);
     Route::get('employee/options', [EmployeeController::class, 'getOptions']);
+    Route::post('employee/zone/{employee}', [EmployeeController::class, 'attachMunicipalities']);
+    Route::get('employee/zone/{employee}', [EmployeeController::class, 'getMunicipalities']);
     Route::post('sales', [SaleController::class, 'index']);
     Route::get('sale/options', [SaleController::class, 'getOptions']);
     Route::get('saleDate/sale/{id}', [SaleDateController::class, 'getPerSale']);
 
+    // --Api resourse--
     Route::apiResource('state', StateController::class);
     Route::apiResource('municipality', MunicipalityController::class);
     Route::apiResource('type', TypeController::class);
@@ -68,4 +72,5 @@ Route::middleware(['auth:sanctum', 'cors'])->group(function () {
     Route::apiResource('employee', EmployeeController::class);
     Route::apiResource('sale', SaleController::class);
     Route::apiResource('saleDate', SaleDateController::class);
+    Route::apiResource('position', PositionController::class);
 });

@@ -53,4 +53,9 @@ class Type extends Model
     {
         return $this->hasMany(SaleDate::class, 'type_id');
     }
+
+    public function employees()
+    {
+        return $this->hasMany(Employee::class, 'type_id');
+    }
 }

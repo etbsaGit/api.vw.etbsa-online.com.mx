@@ -26,7 +26,12 @@ class StoreAgencyRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'unique:agencies', 'max:191'],
-            'address' => ['required', 'string', 'max:191'],
+            'address' => ['nullable', 'string', 'max:191'],
+            "district" => ['nullable', 'string', 'max:255'],
+            "zip_code" => ['nullable', 'numeric', 'digits:5'],
+
+            'state_id' => ['nullable', 'integer', 'exists:states,id'],
+            'municipality_id' => ['nullable', 'integer', 'exists:municipalities,id'],
         ];
     }
 

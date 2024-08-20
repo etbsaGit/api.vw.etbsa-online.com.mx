@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Intranet\Agency;
+namespace App\Http\Requests\Intranet\Position;
 
 use Illuminate\Http\Response;
 use Illuminate\Validation\Rule;
@@ -8,7 +8,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Validation\ValidationException;
 
-class PutAgencyRequest extends FormRequest
+class PutPositionRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,13 +26,8 @@ class PutAgencyRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:191', Rule::unique('agencies')->ignore($this->route("agency")->id)],
-            'address' => ['nullable', 'string', 'max:191'],
-            "district" => ['nullable', 'string', 'max:255'],
-            "zip_code" => ['nullable', 'numeric', 'digits:5'],
-
-            'state_id' => ['nullable', 'integer', 'exists:states,id'],
-            'municipality_id' => ['nullable', 'integer', 'exists:municipalities,id'],
+            'name' => ['required', 'string', 'max:191', Rule::unique('positions')->ignore($this->route("position")->id)],
+            'description' => ['nullable', 'string', 'max:191'],
         ];
     }
 

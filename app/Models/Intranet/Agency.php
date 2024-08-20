@@ -11,8 +11,22 @@ class Agency extends Model
 
     protected $fillable = [
         'name',
-        'address'
+        'address',
+        'district',
+        'zip_code',
+        'municipality_id',
+        'state_id',
     ];
+
+    public function municipality()
+    {
+        return $this->belongsTo(Municipality::class, 'municipality_id');
+    }
+
+    public function state()
+    {
+        return $this->belongsTo(State::class, 'state_id');
+    }
 
     public function employees()
     {

@@ -23,4 +23,15 @@ class Municipality extends Model
     {
         return $this->hasMany(Customer::class, 'municipality_id');
     }
+
+    public function agencies()
+    {
+        return $this->hasMany(Agency::class, 'municipality_id');
+    }
+
+    public function employees()
+    {
+        return $this->belongsToMany(Employee::class, 'p_employee_municipalities', 'municipality_id', 'employee_id');
+    }
+
 }
