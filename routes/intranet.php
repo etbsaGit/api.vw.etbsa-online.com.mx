@@ -9,6 +9,7 @@ use App\Http\Controllers\Intranet\PriceController;
 use App\Http\Controllers\Intranet\StateController;
 use App\Http\Controllers\Intranet\AgencyController;
 use App\Http\Controllers\Intranet\StatusController;
+use App\Http\Controllers\Intranet\TargetController;
 use App\Http\Controllers\Intranet\FeatureController;
 use App\Http\Controllers\Intranet\VehicleController;
 use App\Http\Controllers\Intranet\CustomerController;
@@ -55,6 +56,9 @@ Route::middleware(['auth:sanctum', 'cors'])->group(function () {
     Route::post('sales', [SaleController::class, 'index']);
     Route::get('sale/options', [SaleController::class, 'getOptions']);
     Route::get('saleDate/sale/{id}', [SaleDateController::class, 'getPerSale']);
+    Route::get('target/employee/{id}', [TargetController::class, 'getPerEmployee']);
+    Route::get('targets/{year}', [TargetController::class, 'getTarget']);
+    Route::get('targets/{month}/{year}/{agency}', [TargetController::class, 'getTargetsEmployee']);
 
     // --Api resourse--
     Route::apiResource('state', StateController::class);
@@ -73,4 +77,5 @@ Route::middleware(['auth:sanctum', 'cors'])->group(function () {
     Route::apiResource('sale', SaleController::class);
     Route::apiResource('saleDate', SaleDateController::class);
     Route::apiResource('position', PositionController::class);
+    Route::apiResource('target', TargetController::class);
 });

@@ -89,4 +89,9 @@ class Employee extends Model
     {
         return $this->belongsToMany(Municipality::class, 'p_employee_municipalities', 'employee_id', 'municipality_id');
     }
+
+    public function targets()
+    {
+        return $this->hasMany(Target::class, 'employee_id');
+    }
 }
