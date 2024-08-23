@@ -38,6 +38,7 @@ class PutEmployeeRequest extends FormRequest
             'email' => ['nullable', 'email', Rule::unique('users')->ignore($this->route("employee")->user_id)],
             'type_id' => ['nullable', 'integer', 'exists:types,id'],
             'position_id' => ['nullable', 'integer', 'exists:positions,id'],
+            'department_id' => ['nullable', 'integer', 'exists:departments,id'],
         ];
     }
 

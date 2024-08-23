@@ -58,4 +58,9 @@ class Type extends Model
     {
         return $this->hasMany(Employee::class, 'type_id');
     }
+
+    public function targets()
+    {
+        return $this->hasMany(Target::class, 'type_id');
+    }
 }

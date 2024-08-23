@@ -28,6 +28,7 @@ class Employee extends Model
         'user_id',
         'type_id',
         'position_id',
+        'department_id'
     ];
 
     protected $appends = ['fullName','pic'];
@@ -80,6 +81,11 @@ class Employee extends Model
         return $this->belongsTo(Agency::class, 'agency_id');
     }
 
+    public function department()
+    {
+        return $this->belongsTo(Department::class, 'department_id');
+    }
+
     public function sales()
     {
         return $this->hasMany(Sale::class, 'employee_id');
@@ -88,5 +94,10 @@ class Employee extends Model
     public function municipalities()
     {
         return $this->belongsToMany(Municipality::class, 'p_employee_municipalities', 'employee_id', 'municipality_id');
+    }
+
+    public function targets()
+    {
+        return $this->hasMany(Target::class, 'employee_id');
     }
 }
