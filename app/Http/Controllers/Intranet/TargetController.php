@@ -119,7 +119,7 @@ class TargetController extends ApiController
                             ->with('type'); // Cargar la relación 'type' en los targets
                     }
                 ])
-                ->first();
+                ->get();
 
             return $this->respond($sucursalConEmpleados);
         }
