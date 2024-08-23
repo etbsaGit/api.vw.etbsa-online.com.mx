@@ -28,6 +28,7 @@ class Employee extends Model
         'user_id',
         'type_id',
         'position_id',
+        'department_id'
     ];
 
     protected $appends = ['fullName','pic'];
@@ -78,6 +79,11 @@ class Employee extends Model
     public function agency()
     {
         return $this->belongsTo(Agency::class, 'agency_id');
+    }
+
+    public function department()
+    {
+        return $this->belongsTo(Department::class, 'department_id');
     }
 
     public function sales()

@@ -16,6 +16,7 @@ use App\Http\Controllers\Intranet\CustomerController;
 use App\Http\Controllers\Intranet\EmployeeController;
 use App\Http\Controllers\Intranet\PositionController;
 use App\Http\Controllers\Intranet\SaleDateController;
+use App\Http\Controllers\Intranet\DepartmentController;
 use App\Http\Controllers\Intranet\VehicleDocController;
 use App\Http\Controllers\Intranet\MunicipalityController;
 use App\Http\Controllers\Intranet\VehicleFeatureController;
@@ -78,4 +79,5 @@ Route::middleware(['auth:sanctum', 'cors'])->group(function () {
     Route::apiResource('saleDate', SaleDateController::class);
     Route::apiResource('position', PositionController::class);
     Route::apiResource('target', TargetController::class);
+    Route::apiResource('department', DepartmentController::class);
 });

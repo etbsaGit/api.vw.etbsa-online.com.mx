@@ -15,6 +15,7 @@ use App\Http\Requests\Intranet\Employee\AttachMunicipalitiesRequest;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\Intranet\Employee\PutEmployeeRequest;
 use App\Http\Requests\Intranet\Employee\StoreEmployeeRequest;
+use App\Models\Intranet\Department;
 
 class EmployeeController extends ApiController
 {
@@ -25,7 +26,7 @@ class EmployeeController extends ApiController
     public function index(Request $request)
     {
         $filters = $request->all();
-        $employees = Employee::filterEmployees($filters)->with('agency','user','type','position')->paginate(10);
+        $employees = Employee::filterEmployees($filters)->with('agency','user','type','position','department')->paginate(10);
         return $this->respond($employees);
     }
 
@@ -122,6 +123,7 @@ class EmployeeController extends ApiController
             'agencies' => Agency::all(),
             'positions' => Position::all(),
             'types' => Type::where('type_key', 'employee')->get(),
+            'departments' => Department::all(),
         ];
 
         return $this->respond($data);
