@@ -5,22 +5,22 @@ namespace App\Models\Intranet;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Status extends Model
+class VehicleBody extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'name',
-        'status_key'
+        'configuration',
+        'type_id',
     ];
 
-    public function sales()
+    public function type()
     {
-        return $this->hasMany(Sale::class, 'status_id');
+        return $this->belongsTo(Type::class, 'type_id');
     }
 
     public function inventories()
     {
-        return $this->hasMany(Inventory::class, 'status_id');
+        return $this->hasMany(Inventory::class, 'vehicle_body_id');
     }
 }

@@ -37,4 +37,9 @@ class Agency extends Model
     {
         return $this->hasMany(Sale::class, 'agency_id');
     }
+
+    public function inventories()
+    {
+        return $this->hasMany(Inventory::class, 'agency_id');
+    }
 }

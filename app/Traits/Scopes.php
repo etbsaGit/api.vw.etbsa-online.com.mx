@@ -90,4 +90,23 @@ trait Scopes
         }
         return $query;
     }
+
+    public function scopeFilterInventories(Builder $query, array $filters)
+    {
+        foreach ($filters as $key => $value) {
+            if ($value !== null && $key !== 'page') {
+                if ($key === 'search') {
+                    $query->where(function ($query) use ($value) {
+                        $query->where('serial_number', 'LIKE', '%' . $value . '%')
+                            ->orWhere('economical_number', 'LIKE', '%' . $value . '%')
+                            ->orWhere('inventory_number', 'LIKE', '%' . $value . '%')
+                            ->orWhere('invoice', 'LIKE', '%' . $value . '%');
+                    });
+                } else {
+                    $query->where($key, $value);
+                }
+            }
+        }
+        return $query;
+    }
 }
