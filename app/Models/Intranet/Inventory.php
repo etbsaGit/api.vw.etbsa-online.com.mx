@@ -95,4 +95,14 @@ class Inventory extends Model
     {
         return $this->belongsTo(VehicleBody::class, 'vehicle_body_id');
     }
+
+    public function prices()
+    {
+        return $this->hasMany(Price::class, 'inventory_id');
+    }
+
+    public function sales()
+    {
+        return $this->hasMany(Sale::class, 'inventory_id');
+    }
 }

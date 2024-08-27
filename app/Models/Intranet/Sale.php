@@ -3,8 +3,9 @@
 namespace App\Models\Intranet;
 
 use App\Traits\Scopes;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Sale extends Model
 {
@@ -14,10 +15,8 @@ class Sale extends Model
 
     protected $fillable = [
         'id_sale',
-        'series_vehicle',
-        'year_vehicle',
         'comments',
-        'vehicle_id',
+        'inventory_id',
         'status_id',
         'sales_channel_id',
         'type_id',
@@ -26,9 +25,21 @@ class Sale extends Model
         'employee_id',
     ];
 
-    public function vehicle()
+    protected $appends = ['inventory_with_trashed'];
+
+    public function inventory()
     {
-        return $this->belongsTo(Vehicle::class, 'vehicle_id');
+        return $this->belongsTo(Inventory::class, 'inventory_id');
+    }
+
+    // Accessor para obtener el inventario incluyendo los soft deletes
+    public function inventoryWithTrashed(): Attribute
+    {
+        return new Attribute(
+            get: function () {
+                return Inventory::withTrashed()->with('vehicle')->find($this->inventory_id);
+            }
+        );
     }
 
     public function status()

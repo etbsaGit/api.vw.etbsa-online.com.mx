@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('sku', 191)->unique();
             $table->string('name', 191);
             $table->text('description', 191)->nullable();
-            $table->unsignedInteger('quantity')->default(0);
             $table->boolean('active')->default(1);
             $table->boolean('featured')->default(0);
 

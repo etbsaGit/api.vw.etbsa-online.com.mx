@@ -7,13 +7,13 @@ use App\Models\Intranet\Sale;
 use App\Models\Intranet\Type;
 use App\Models\Intranet\Agency;
 use App\Models\Intranet\Status;
-use App\Models\Intranet\Vehicle;
 use App\Models\Intranet\Customer;
 use App\Models\Intranet\Employee;
 use App\Models\Intranet\SaleDate;
 use App\Http\Controllers\ApiController;
 use App\Http\Requests\Intranet\Sale\PutSaleRequest;
 use App\Http\Requests\Intranet\Sale\StoreSaleRequest;
+use App\Models\Intranet\Inventory;
 
 class SaleController extends ApiController
 {
@@ -24,7 +24,7 @@ class SaleController extends ApiController
     {
         $filters = $request->all();
         $salesQuery = Sale::filterSales($filters)
-            ->with('vehicle', 'status', 'salesChannel', 'type', 'agency', 'customer', 'employee')
+            ->with('status', 'salesChannel', 'type', 'agency', 'customer', 'employee')
             ->orderBy('created_at', 'desc'); // Ordenar del más reciente al más viejo
 
         $sales = $salesQuery->paginate(10);
@@ -49,6 +49,17 @@ class SaleController extends ApiController
                 'sale_id' => $sale->id,
                 'type_id' => $type->id,
             ]);
+        }
+
+        $inventoryId = $request->input('inventory_id');
+
+        // Eliminar el inventario asociado
+        if ($inventoryId) {
+            $inventory = Inventory::find($inventoryId);
+
+            if ($inventory) {
+                $inventory->delete(); // Elimina el inventario con el ID proporcionado
+            }
         }
 
         return $this->respondCreated($sale);
@@ -83,7 +94,8 @@ class SaleController extends ApiController
     public function getOptions()
     {
         $data = [
-            'vehicles' => Vehicle::all(),
+            'inventories' => Inventory::onlyTrashed()->get(),
+            'vehicles' => Inventory::all(),
             'statuses' => Status::where('status_key', 'sales')->get(),
             'sales_channels' => Type::where('type_key', 'channel')->get(),
             'types' => Type::where('type_key', 'sales')->get(),

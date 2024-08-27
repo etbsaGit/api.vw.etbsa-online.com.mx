@@ -25,8 +25,8 @@ class PriceController extends ApiController
     {
         $data = $request->validated();
 
-        // Verificar si ya existe una combinación vehicle_id y feature_id
-        if (Price::where('vehicle_id', $data['vehicle_id'])
+        // Verificar si ya existe una combinación inventory_id y feature_id
+        if (Price::where('inventory_id', $data['inventory_id'])
             ->where('type_id', $data['type_id'])
             ->exists()
         ) {
@@ -54,9 +54,9 @@ class PriceController extends ApiController
     {
         $data = $request->validated();
 
-        // Verificar si ya existe una combinación vehicle_id y feature_id
+        // Verificar si ya existe una combinación inventory_id y feature_id
         // Excluyendo el registro actual de la verificación
-        if (Price::where('vehicle_id', $data['vehicle_id'])
+        if (Price::where('inventory_id', $data['inventory_id'])
             ->where('type_id', $data['type_id'])
             ->where('id', '!=', $price->id)
             ->exists()
@@ -81,7 +81,7 @@ class PriceController extends ApiController
 
     public function getPerVehicle($id)
     {
-        $prices = Price::where('vehicle_id', $id)->with('type')->get();
+        $prices = Price::where('inventory_id', $id)->with('type')->get();
         return $this->respond($prices);
     }
 }

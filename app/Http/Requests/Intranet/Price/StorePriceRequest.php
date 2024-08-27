@@ -26,7 +26,7 @@ class StorePriceRequest extends FormRequest
     {
         return [
             'price' => ['required', 'decimal:2'],
-            'vehicle_id' => ['required', 'integer', 'exists:vehicles,id'],
+            'inventory_id' => ['required', 'integer', 'exists:inventories,id'],
             'type_id' => ['required', 'integer', 'exists:types,id'],
         ];
     }

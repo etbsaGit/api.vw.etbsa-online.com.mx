@@ -16,8 +16,8 @@ return new class extends Migration
 
             $table->decimal('price', 12, 2);
 
-            $table->unsignedBigInteger('vehicle_id')->onDelete('cascade');
-            $table->foreign('vehicle_id')->references('id')->on('vehicles');
+            $table->unsignedBigInteger('inventory_id')->onDelete('cascade');
+            $table->foreign('inventory_id')->references('id')->on('inventories');
 
             $table->unsignedBigInteger('type_id')->onDelete('cascade');
             $table->foreign('type_id')->references('id')->on('types');

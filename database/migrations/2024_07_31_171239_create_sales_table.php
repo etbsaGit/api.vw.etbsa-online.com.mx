@@ -14,12 +14,10 @@ return new class extends Migration
         Schema::create('sales', function (Blueprint $table) {
             $table->id();
             $table->string('id_sale', 191)->unique();
-            $table->string('series_vehicle', 191)->unique();
-            $table->string('year_vehicle', 191);
             $table->string('comments', 191)->nullable();
 
-            $table->unsignedBigInteger('vehicle_id')->onDelete('restrict');
-            $table->foreign('vehicle_id')->references('id')->on('vehicles');
+            $table->unsignedBigInteger('inventory_id')->onDelete('restrict');
+            $table->foreign('inventory_id')->references('id')->on('inventories');
 
             $table->unsignedBigInteger('status_id')->onDelete('restrict');
             $table->foreign('status_id')->references('id')->on('statuses');

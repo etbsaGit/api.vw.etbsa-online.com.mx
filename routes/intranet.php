@@ -46,7 +46,7 @@ Route::middleware(['auth:sanctum', 'cors'])->group(function () {
     Route::get('vehicle/options', [VehicleController::class, 'getOptions']);
     Route::post('vehicles', [VehicleController::class, 'index']);
     Route::get('vehicleFeature/vehicle/{id}', [VehicleFeatureController::class, 'getPerVehicle']);
-    Route::get('price/vehicle/{id}', [PriceController::class, 'getPerVehicle']);
+    Route::get('price/inventory/{id}', [PriceController::class, 'getPerVehicle']);
     Route::get('vehicleDoc/vehicle/{id}', [VehicleDocController::class, 'getPerVehicle']);
     Route::post('customers', [CustomerController::class, 'index']);
     Route::get('customer/options', [CustomerController::class, 'getOptions']);

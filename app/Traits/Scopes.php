@@ -80,8 +80,7 @@ trait Scopes
             if ($value !== null && $key !== 'page') {
                 if ($key === 'search') {
                     $query->where(function ($query) use ($value) {
-                        $query->where('id_sale', 'LIKE', '%' . $value . '%')
-                            ->orWhere('series_vehicle', 'LIKE', '%' . $value . '%');
+                        $query->where('id_sale', 'LIKE', '%' . $value . '%');
                     });
                 } else {
                     $query->where($key, $value);
