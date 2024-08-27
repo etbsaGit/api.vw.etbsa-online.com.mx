@@ -39,6 +39,7 @@ class StoreCustomerRequest extends FormRequest
             'state_id' => ['nullable', 'integer', 'exists:states,id'],
             'municipality_id' => ['nullable', 'integer', 'exists:municipalities,id'],
             'type_id' => ['required', 'integer', 'exists:types,id'],
+            'agent_id' => ['nullable', 'integer', 'exists:customers,id'],
         ];
     }
 

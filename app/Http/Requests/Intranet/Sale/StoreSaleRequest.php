@@ -26,10 +26,7 @@ class StoreSaleRequest extends FormRequest
     {
         return [
             'id_sale' => ['required', 'string', 'unique:sales', 'max:191'],
-            'series_vehicle' => ['required', 'string', 'unique:sales', 'max:191'],
-            'year_vehicle' => ['required', 'integer', 'digits:4'],
-            'id_sale' => ['nullable', 'string', 'max:191'],
-            'vehicle_id' => ['required', 'integer', 'exists:vehicles,id'],
+            'inventory_id' => ['required', 'integer', 'exists:inventories,id', 'unique:sales'],
             'status_id' => ['required', 'integer', 'exists:statuses,id'],
             'sales_channel_id' => ['required', 'integer', 'exists:types,id'],
             'type_id' => ['required', 'integer', 'exists:types,id'],

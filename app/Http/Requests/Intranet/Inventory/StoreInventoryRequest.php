@@ -1,14 +1,13 @@
 <?php
 
-namespace App\Http\Requests\Intranet\Sale;
+namespace App\Http\Requests\Intranet\Inventory;
 
 use Illuminate\Http\Response;
-use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Validation\ValidationException;
 
-class PutSaleRequest extends FormRequest
+class StoreInventoryRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,15 +25,19 @@ class PutSaleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id_sale' => ['required', 'string', 'max:191', Rule::unique('sales')->ignore($this->route("sale")->id)],
-            'inventory_id' => ['required', 'integer', 'exists:inventories,id', Rule::unique('sales')->ignore($this->route("sale")->id)],
+            'serial_number' => ['required', 'string', 'unique:inventories', 'max:191'],
+            'economical_number' => ['required', 'string', 'max:191'],
+            'inventory_number' => ['required', 'string', 'max:191'],
+            'invoice' => ['required', 'string', 'max:191'],
+            'invoice_date' => ['required', 'date'],
+            'year' => ['required', 'integer', 'digits:4'],
+            'p_r' => ['nullable', 'string', 'max:191'],
+            'comments' => ['nullable', 'string', 'max:191'],
             'status_id' => ['required', 'integer', 'exists:statuses,id'],
-            'sales_channel_id' => ['required', 'integer', 'exists:types,id'],
             'type_id' => ['required', 'integer', 'exists:types,id'],
             'agency_id' => ['required', 'integer', 'exists:agencies,id'],
-            'customer_id' => ['required', 'integer', 'exists:customers,id'],
-            'employee_id' => ['required', 'integer', 'exists:employees,id'],
-            'comments' => ['nullable', 'string', 'max:191'],
+            'vehicle_id' => ['required', 'integer', 'exists:vehicles,id'],
+            'vehicle_body_id' => ['nullable', 'integer', 'exists:vehicle_bodies,id'],
         ];
     }
 

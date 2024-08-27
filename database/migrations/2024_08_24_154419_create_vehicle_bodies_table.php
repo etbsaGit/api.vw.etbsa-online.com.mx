@@ -11,15 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('prices', function (Blueprint $table) {
+        Schema::create('vehicle_bodies', function (Blueprint $table) {
             $table->id();
 
-            $table->decimal('price', 12, 2);
+            $table->string('configuration', 191);
 
-            $table->unsignedBigInteger('inventory_id')->onDelete('cascade');
-            $table->foreign('inventory_id')->references('id')->on('inventories');
-
-            $table->unsignedBigInteger('type_id')->onDelete('cascade');
+            $table->unsignedBigInteger('type_id')->onDelete('restrict');
             $table->foreign('type_id')->references('id')->on('types');
 
             $table->timestamps();
@@ -31,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('prices');
+        Schema::dropIfExists('vehicle_bodies');
     }
 };

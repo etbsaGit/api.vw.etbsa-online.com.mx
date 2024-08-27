@@ -3,8 +3,9 @@
 namespace App\Models\Intranet;
 
 use App\Traits\Scopes;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Vehicle extends Model
 {
@@ -16,12 +17,23 @@ class Vehicle extends Model
         'sku',
         'name',
         'description',
-        'quantity',
         'active',
         'featured',
         'type_id',
         'brand_id'
     ];
+
+    protected $appends = ['quantity'];
+
+    public function quantity(): Attribute
+    {
+        return new Attribute(
+            get: function () {
+                // Contar el número de objetos en la relación inventories
+                return $this->inventories()->count();
+            }
+        );
+    }
 
     public function type()
     {
@@ -38,18 +50,13 @@ class Vehicle extends Model
         return $this->hasOne(VehicleFeature::class, 'vehicle_id');
     }
 
-    public function prices()
-    {
-        return $this->hasMany(Price::class, 'vehicle_id');
-    }
-
     public function vehicleDocs()
     {
         return $this->hasMany(VehicleDoc::class, 'vehicle_id');
     }
 
-    public function sales()
+    public function inventories()
     {
-        return $this->hasMany(Sale::class, 'vehicle_id');
+        return $this->hasMany(Inventory::class, 'vehicle_id');
     }
 }

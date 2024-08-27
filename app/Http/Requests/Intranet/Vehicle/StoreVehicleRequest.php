@@ -28,7 +28,6 @@ class StoreVehicleRequest extends FormRequest
             'sku' => ['nullable', 'string', 'unique:vehicles', 'max:255'],
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:255'],
-            'quantity' => ['nullable', 'integer'],
             'active' => ['required','boolean'],
             'featured' => ['required','boolean'],
             'type_id' => ['required', 'integer', 'exists:types,id'],

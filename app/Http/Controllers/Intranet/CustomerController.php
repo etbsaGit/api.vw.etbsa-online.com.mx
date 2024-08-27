@@ -61,7 +61,11 @@ class CustomerController extends ApiController
 
     public function getOptions()
     {
+
+        $personaMoralType = Type::where('name', 'moral')->where('type_key', 'sat')->first();
+
         $data = [
+            'customers' => Customer::where('type_id', $personaMoralType->id)->orderBy('name')->get(),
             'states' => State::all(),
             'types' => Type::where('type_key', 'sat')->get(),
         ];

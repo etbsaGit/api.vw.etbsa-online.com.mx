@@ -10,14 +10,14 @@ class Price extends Model
     use HasFactory;
 
     protected $fillable = [
-        'vehicle_id',
+        'inventory_id',
         'type_id',
         'price'
     ];
 
-    public function vehicle()
+    public function inventory()
     {
-        return $this->belongsTo(Vehicle::class, 'vehicle_id');
+        return $this->belongsTo(Inventory::class, 'inventory_id');
     }
 
     public function type()

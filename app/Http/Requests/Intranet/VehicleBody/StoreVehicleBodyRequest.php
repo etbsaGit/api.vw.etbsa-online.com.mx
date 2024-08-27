@@ -1,14 +1,13 @@
 <?php
 
-namespace App\Http\Requests\Intranet\Vehicle;
+namespace App\Http\Requests\Intranet\VehicleBody;
 
 use Illuminate\Http\Response;
-use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Validation\ValidationException;
 
-class PutVehicleRequest extends FormRequest
+class StoreVehicleBodyRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,14 +25,8 @@ class PutVehicleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'sku' => ['nullable', 'string', 'max:255', Rule::unique('vehicles')->ignore($this->route("vehicle")->id)],
-            'name' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string', 'max:255'],
-            'active' => ['required', 'boolean'],
-            'featured' => ['required', 'boolean'],
+            'configuration' => ['required', 'string', 'max:191'],
             'type_id' => ['required', 'integer', 'exists:types,id'],
-            'brand_id' => ['required', 'integer', 'exists:brands,id'],
-            // 'docs' => ['nullable','array'],
         ];
     }
 

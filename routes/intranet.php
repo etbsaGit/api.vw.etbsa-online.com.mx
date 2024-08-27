@@ -17,7 +17,9 @@ use App\Http\Controllers\Intranet\EmployeeController;
 use App\Http\Controllers\Intranet\PositionController;
 use App\Http\Controllers\Intranet\SaleDateController;
 use App\Http\Controllers\Intranet\DepartmentController;
+use App\Http\Controllers\Intranet\InventoryController;
 use App\Http\Controllers\Intranet\VehicleDocController;
+use App\Http\Controllers\Intranet\VehicleBodyController;
 use App\Http\Controllers\Intranet\MunicipalityController;
 use App\Http\Controllers\Intranet\VehicleFeatureController;
 
@@ -44,7 +46,7 @@ Route::middleware(['auth:sanctum', 'cors'])->group(function () {
     Route::get('vehicle/options', [VehicleController::class, 'getOptions']);
     Route::post('vehicles', [VehicleController::class, 'index']);
     Route::get('vehicleFeature/vehicle/{id}', [VehicleFeatureController::class, 'getPerVehicle']);
-    Route::get('price/vehicle/{id}', [PriceController::class, 'getPerVehicle']);
+    Route::get('price/inventory/{id}', [PriceController::class, 'getPerVehicle']);
     Route::get('vehicleDoc/vehicle/{id}', [VehicleDocController::class, 'getPerVehicle']);
     Route::post('customers', [CustomerController::class, 'index']);
     Route::get('customer/options', [CustomerController::class, 'getOptions']);
@@ -60,6 +62,8 @@ Route::middleware(['auth:sanctum', 'cors'])->group(function () {
     Route::get('target/employee/{id}', [TargetController::class, 'getPerEmployee']);
     Route::get('targets/{year}', [TargetController::class, 'getTarget']);
     Route::get('targets/{month}/{year}/{agency}', [TargetController::class, 'getTargetsEmployee']);
+    Route::post('inventories', [InventoryController::class, 'index']);
+    Route::get('inventories/options', [InventoryController::class, 'getOptions']);
 
     // --Api resourse--
     Route::apiResource('state', StateController::class);
@@ -80,4 +84,6 @@ Route::middleware(['auth:sanctum', 'cors'])->group(function () {
     Route::apiResource('position', PositionController::class);
     Route::apiResource('target', TargetController::class);
     Route::apiResource('department', DepartmentController::class);
+    Route::apiResource('vehicleBody', VehicleBodyController::class);
+    Route::apiResource('inventory', InventoryController::class);
 });
