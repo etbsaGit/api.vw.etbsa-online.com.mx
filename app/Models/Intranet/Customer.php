@@ -26,6 +26,7 @@ class Customer extends Model
         'municipality_id',
         'state_id',
         'type_id',
+        'agent_id',
     ];
 
     public function municipality()
@@ -46,5 +47,17 @@ class Customer extends Model
     public function sales()
     {
         return $this->hasMany(Sale::class, 'customer_id');
+    }
+
+    // Relación para obtener el agente de un cliente
+    public function agent()
+    {
+        return $this->belongsTo(Customer::class, 'agent_id');
+    }
+
+    // Relación para obtener todos los clientes asociados a un agente
+    public function subordinates()
+    {
+        return $this->hasMany(Customer::class, 'agent_id');
     }
 }

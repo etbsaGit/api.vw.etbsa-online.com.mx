@@ -32,14 +32,15 @@ class PutCustomerRequest extends FormRequest
             "curp" => ['nullable', 'string', 'min:18', 'max:18', Rule::unique('customers')->ignore($this->route("customer")->id)],
             "phone" => ['nullable', 'numeric', 'digits:10', Rule::unique('customers')->ignore($this->route("customer")->id)],
             "landline" => ['nullable', 'numeric', 'digits:10', Rule::unique('customers')->ignore($this->route("customer")->id)],
-            'street' => ['nullable', 'email', Rule::unique('customers')->ignore($this->route("customer")->id)],
-            "calle" => ['nullable', 'string', 'max:255'],
+            'email' => ['nullable', 'email', Rule::unique('customers')->ignore($this->route("customer")->id)],
+            "street" => ['nullable', 'string', 'max:255'],
             "district" => ['nullable', 'string', 'max:255'],
             "zip_code" => ['nullable', 'numeric', 'digits:5'],
 
             'state_id' => ['nullable', 'integer', 'exists:states,id'],
             'municipality_id' => ['nullable', 'integer', 'exists:municipalities,id'],
             'type_id' => ['required', 'integer', 'exists:types,id'],
+            'agent_id' => ['nullable', 'integer', 'exists:customers,id'],
         ];
     }
 
