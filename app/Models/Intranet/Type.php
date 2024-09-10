@@ -73,4 +73,14 @@ class Type extends Model
     {
         return $this->hasMany(Inventory::class, 'type_id');
     }
+
+    public function origin()
+    {
+        return $this->hasMany(FollowUp::class, 'origin_id');
+    }
+
+    public function percentage()
+    {
+        return $this->hasMany(FollowUp::class, 'percentage_id');
+    }
 }

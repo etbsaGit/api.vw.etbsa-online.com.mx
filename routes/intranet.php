@@ -14,10 +14,11 @@ use App\Http\Controllers\Intranet\FeatureController;
 use App\Http\Controllers\Intranet\VehicleController;
 use App\Http\Controllers\Intranet\CustomerController;
 use App\Http\Controllers\Intranet\EmployeeController;
+use App\Http\Controllers\Intranet\FollowUpController;
 use App\Http\Controllers\Intranet\PositionController;
 use App\Http\Controllers\Intranet\SaleDateController;
-use App\Http\Controllers\Intranet\DepartmentController;
 use App\Http\Controllers\Intranet\InventoryController;
+use App\Http\Controllers\Intranet\DepartmentController;
 use App\Http\Controllers\Intranet\VehicleDocController;
 use App\Http\Controllers\Intranet\VehicleBodyController;
 use App\Http\Controllers\Intranet\MunicipalityController;
@@ -64,6 +65,11 @@ Route::middleware(['auth:sanctum', 'cors'])->group(function () {
     Route::get('targets/{month}/{year}/{agency}', [TargetController::class, 'getTargetsEmployee']);
     Route::post('inventories', [InventoryController::class, 'index']);
     Route::get('inventories/options', [InventoryController::class, 'getOptions']);
+    Route::get('followUp/options', [FollowUpController::class, 'getOptions']);
+    Route::post('followUps', [FollowUpController::class, 'index']);
+    Route::post('followUp/next/{followUp}', [FollowUpController::class, 'nextFollowUp']);
+    Route::get('followUp/lost/{followUp}', [FollowUpController::class, 'saleLost']);
+    Route::get('followUp/win/{followUp}', [FollowUpController::class, 'saleWin']);
 
     // --Api resourse--
     Route::apiResource('state', StateController::class);
@@ -86,4 +92,5 @@ Route::middleware(['auth:sanctum', 'cors'])->group(function () {
     Route::apiResource('department', DepartmentController::class);
     Route::apiResource('vehicleBody', VehicleBodyController::class);
     Route::apiResource('inventory', InventoryController::class);
+    Route::apiResource('followUp', FollowUpController::class);
 });

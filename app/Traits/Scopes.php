@@ -108,4 +108,21 @@ trait Scopes
         }
         return $query;
     }
+
+    public function scopeFilterFollowUp(Builder $query, array $filters)
+    {
+        foreach ($filters as $key => $value) {
+            if ($value !== null && $key !== 'page') {
+                if ($key === 'search') {
+                    $query->where(function ($query) use ($value) {
+                        $query->where('title', 'LIKE', '%' . $value . '%')
+                            ->orWhere('date', 'LIKE', '%' . $value . '%');
+                    });
+                } else {
+                    $query->where($key, $value);
+                }
+            }
+        }
+        return $query;
+    }
 }
