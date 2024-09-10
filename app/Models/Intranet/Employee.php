@@ -31,7 +31,7 @@ class Employee extends Model
         'department_id'
     ];
 
-    protected $appends = ['fullName','pic'];
+    protected $appends = ['shortName','fullName','pic'];
 
     public function pic(): Attribute
     {
@@ -59,6 +59,11 @@ class Employee extends Model
     public function getfullNameAttribute()
     {
         return $this->first_name . ' ' . $this->middle_name . ' ' . $this->paternal_surname . ' ' . $this->maternal_surname;
+    }
+
+    public function getShortNameAttribute()
+    {
+        return $this->first_name . ' ' . $this->paternal_surname;
     }
 
     public function user()
@@ -99,5 +104,10 @@ class Employee extends Model
     public function targets()
     {
         return $this->hasMany(Target::class, 'employee_id');
+    }
+
+    public function followUp()
+    {
+        return $this->hasMany(FollowUp::class, 'employee_id');
     }
 }

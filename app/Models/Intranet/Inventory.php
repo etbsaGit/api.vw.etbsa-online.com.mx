@@ -34,7 +34,17 @@ class Inventory extends Model
         'vehicle_body_id'
     ];
 
-    protected $appends = ['days_in_inventory', 'm_y'];
+    protected $appends = ['days_in_inventory', 'm_y','model'];
+
+    public function model(): Attribute
+    {
+        return new Attribute(
+            get: function () {
+
+                return $this->vehicle->name.$this->serial_number;
+            }
+        );
+    }
 
     public function daysInInventory(): Attribute
     {
@@ -105,4 +115,5 @@ class Inventory extends Model
     {
         return $this->hasMany(Sale::class, 'inventory_id');
     }
+
 }

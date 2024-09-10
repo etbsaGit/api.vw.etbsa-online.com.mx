@@ -59,4 +59,9 @@ class Vehicle extends Model
     {
         return $this->hasMany(Inventory::class, 'vehicle_id');
     }
+
+    public function followUp()
+    {
+        return $this->hasMany(FollowUp::class, 'inventory_id');
+    }
 }

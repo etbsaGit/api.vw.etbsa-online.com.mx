@@ -23,4 +23,9 @@ class Status extends Model
     {
         return $this->hasMany(Inventory::class, 'status_id');
     }
+
+    public function followUp()
+    {
+        return $this->hasMany(FollowUp::class, 'status_id');
+    }
 }
