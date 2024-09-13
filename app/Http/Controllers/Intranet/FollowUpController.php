@@ -10,8 +10,6 @@ use App\Models\Intranet\Customer;
 use App\Models\Intranet\Employee;
 use App\Models\Intranet\FollowUp;
 use App\Models\Intranet\Position;
-use App\Models\Intranet\Inventory;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\ApiController;
 use App\Http\Requests\Intranet\FollowUp\NextFollowUpRequest;
@@ -20,6 +18,58 @@ use App\Http\Requests\Intranet\FollowUp\AddFeedBackFollowUpRequest;
 
 class FollowUpController extends ApiController
 {
+    public function allFollow()
+    {
+        $user = Auth::user();
+        $employee = $user->employee;
+
+        // Obtener el ID del estado "Activo" dinámicamente
+        $activeStatus = Status::where('name', 'Activo')->first();
+
+        // Verificar si el empleado está asociado al usuario
+        $query = FollowUp::with('children') // Carga la relación 'children'
+            ->where('status_id', $activeStatus->id)
+            ->whereNull('follow_up_id');
+
+        // Si el usuario es vendedor, filtrar por employee_id del vendedor
+        if ($employee) {
+            // Obtener el ID de la posición de 'Vendedor' (ajusta según tu lógica para obtener este ID)
+            $vendedorPositionId = Position::where('name', 'Vendedor')->value('id');
+
+            // Verificar el rol del empleado y ajustar la consulta en consecuencia
+            if ($employee->position_id === $vendedorPositionId) {
+                $query->where('employee_id', $employee->id);
+            }
+        }
+
+        // Obtener los FollowUps que cumplen con las condiciones iniciales
+        $followUps = $query->get();
+
+        // Si no hay FollowUps, retornar una respuesta vacía
+        if ($followUps->isEmpty()) {
+            return $this->respond([]);
+        }
+
+        // Encontrar el child con la fecha más reciente para cada FollowUp
+        $latestChildren = $followUps->map(function ($followUp) {
+            // Obtener el child con la fecha más reciente
+            $latestChild = $followUp->children->sortByDesc('date')->first();
+
+            // Cargar las relaciones necesarias para el child
+            if ($latestChild) {
+                return $latestChild->load('customer', 'employee', 'vehicle', 'status', 'origin', 'percentage');
+            }
+
+            return null;
+        })->filter(function ($child) {
+            // Eliminar children que sean null
+            return !is_null($child);
+        });
+
+        return $this->respond($latestChildren->values()->all()); // Retorna el array de children más recientes con relaciones
+    }
+
+
     /**
      * Display a listing of the resource.
      */
@@ -199,6 +249,30 @@ class FollowUpController extends ApiController
         // Verifica si se encontró el status
         if ($status === null) {
             return response()->json(['error' => 'El status "Venta ganada" no se encuentra en la base de datos.'], 404);
+        }
+
+        // Actualiza el status_id del FollowUp
+        $followUp->status_id = $status->id;
+        $followUp->save();
+
+        // Asume que 'children' es la relación que contiene los registros relacionados
+        // Actualiza el status_id para todos los registros relacionados
+        $followUp->children()->each(function ($child) use ($status) {
+            $child->status_id = $status->id;
+            $child->save();
+        });
+
+        return $this->respondSuccess();
+    }
+
+    public function saleActive(FollowUp $followUp)
+    {
+        // Obtén el status con el nombre 'Venta perdida'
+        $status = Status::where('name', 'Activo')->first();
+
+        // Verifica si se encontró el status
+        if ($status === null) {
+            return response()->json(['error' => 'El status "Activo" no se encuentra en la base de datos.'], 404);
         }
 
         // Actualiza el status_id del FollowUp

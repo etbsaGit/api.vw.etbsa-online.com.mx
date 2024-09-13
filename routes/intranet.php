@@ -70,6 +70,8 @@ Route::middleware(['auth:sanctum', 'cors'])->group(function () {
     Route::post('followUp/next/{followUp}', [FollowUpController::class, 'nextFollowUp']);
     Route::get('followUp/lost/{followUp}', [FollowUpController::class, 'saleLost']);
     Route::get('followUp/win/{followUp}', [FollowUpController::class, 'saleWin']);
+    Route::get('followUp/active/{followUp}', [FollowUpController::class, 'saleActive']);
+    Route::get('followUp/all', [FollowUpController::class, 'allFollow']);
 
     // --Api resourse--
     Route::apiResource('state', StateController::class);

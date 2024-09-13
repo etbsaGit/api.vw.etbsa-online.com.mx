@@ -2,6 +2,7 @@
 
 namespace App\Models\Intranet;
 
+use Carbon\Carbon;
 use App\Traits\Scopes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -28,7 +29,32 @@ class FollowUp extends Model
         'follow_up_id',
     ];
 
-    protected $appends = ['lastPercentage','lastVehicle'];
+    protected $appends = ['lastPercentage', 'lastVehicle', 'daysRemaining'];
+
+    public function getDaysRemainingAttribute()
+    {
+        $latestChild = $this->children()->orderBy('date', 'desc')->first();
+        $statusActivo = Status::where('name','Activo')->first();
+
+        if (!$latestChild || !$latestChild->date || $this->status_id != $statusActivo->id) {
+            return null;
+        }
+
+        $latestChildDate = Carbon::parse($latestChild->date);
+
+        $currentDate = Carbon::now();
+
+        $daysRemaining = $currentDate->diffInDays($latestChildDate);
+
+        if ($latestChildDate < $currentDate) {
+            $daysRemaining = -$daysRemaining;
+        } else {
+            $daysRemaining += 1;
+        }
+
+        return $daysRemaining;
+    }
+
 
     public function getLastPercentageAttribute()
     {
