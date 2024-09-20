@@ -10,6 +10,7 @@ use App\Models\Intranet\Customer;
 use App\Models\Intranet\Employee;
 use App\Models\Intranet\FollowUp;
 use App\Models\Intranet\Position;
+use App\Models\Intranet\FailedSale;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\ApiController;
 use App\Http\Requests\Intranet\FollowUp\NextFollowUpRequest;
@@ -163,6 +164,7 @@ class FollowUpController extends ApiController
             'employee.position',
             'employee.agency',
             'employee.department',
+            'failedSale.type',
             'vehicle',
             'status',
             'origin',
@@ -262,6 +264,12 @@ class FollowUpController extends ApiController
             $child->save();
         });
 
+        // Elimina el registro de FailedSale si existe
+        $failedSale = FailedSale::where('follow_up_id', $followUp->id)->first();
+        if ($failedSale) {
+            $failedSale->delete();
+        }
+
         return $this->respondSuccess();
     }
 
@@ -285,6 +293,12 @@ class FollowUpController extends ApiController
             $child->status_id = $status->id;
             $child->save();
         });
+
+        // Elimina el registro de FailedSale si existe
+        $failedSale = FailedSale::where('follow_up_id', $followUp->id)->first();
+        if ($failedSale) {
+            $failedSale->delete();
+        }
 
         return $this->respondSuccess();
     }

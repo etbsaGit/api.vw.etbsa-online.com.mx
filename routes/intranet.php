@@ -19,6 +19,7 @@ use App\Http\Controllers\Intranet\PositionController;
 use App\Http\Controllers\Intranet\SaleDateController;
 use App\Http\Controllers\Intranet\InventoryController;
 use App\Http\Controllers\Intranet\DepartmentController;
+use App\Http\Controllers\Intranet\FailedSaleController;
 use App\Http\Controllers\Intranet\VehicleDocController;
 use App\Http\Controllers\Intranet\VehicleBodyController;
 use App\Http\Controllers\Intranet\MunicipalityController;
@@ -95,4 +96,5 @@ Route::middleware(['auth:sanctum', 'cors'])->group(function () {
     Route::apiResource('vehicleBody', VehicleBodyController::class);
     Route::apiResource('inventory', InventoryController::class);
     Route::apiResource('followUp', FollowUpController::class);
+    Route::apiResource('failedSale', FailedSaleController::class);
 });

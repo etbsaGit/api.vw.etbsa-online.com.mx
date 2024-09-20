@@ -107,4 +107,9 @@ class FollowUp extends Model
     {
         return $this->hasMany(FollowUp::class, 'follow_up_id');
     }
+
+    public function failedSale()
+    {
+        return $this->hasOne(FailedSale::class, 'follow_up_id');
+    }
 }
