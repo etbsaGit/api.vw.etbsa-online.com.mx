@@ -88,4 +88,9 @@ class Type extends Model
     {
         return $this->hasMany(FailedSale::class, 'type_id');
     }
+
+    public function quote()
+    {
+        return $this->hasMany(Quote::class, 'type_id');
+    }
 }

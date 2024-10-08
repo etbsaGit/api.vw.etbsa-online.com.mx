@@ -6,6 +6,7 @@ use App\Http\Controllers\Intranet\SaleController;
 use App\Http\Controllers\Intranet\TypeController;
 use App\Http\Controllers\Intranet\BrandController;
 use App\Http\Controllers\Intranet\PriceController;
+use App\Http\Controllers\Intranet\QuoteController;
 use App\Http\Controllers\Intranet\StateController;
 use App\Http\Controllers\Intranet\AgencyController;
 use App\Http\Controllers\Intranet\StatusController;
@@ -73,6 +74,9 @@ Route::middleware(['auth:sanctum', 'cors'])->group(function () {
     Route::get('followUp/win/{followUp}', [FollowUpController::class, 'saleWin']);
     Route::get('followUp/active/{followUp}', [FollowUpController::class, 'saleActive']);
     Route::get('followUp/all', [FollowUpController::class, 'allFollow']);
+    Route::post('inventories/quote/{inventory}', [InventoryController::class, 'getPDFQuote']);
+    Route::get('quotes/followUp/{followUp}', [QuoteController::class, 'getPerFollow']);
+    Route::get('quotes/options', [QuoteController::class, 'getOptions']);
 
     // --Api resourse--
     Route::apiResource('state', StateController::class);
@@ -97,4 +101,5 @@ Route::middleware(['auth:sanctum', 'cors'])->group(function () {
     Route::apiResource('inventory', InventoryController::class);
     Route::apiResource('followUp', FollowUpController::class);
     Route::apiResource('failedSale', FailedSaleController::class);
+    Route::apiResource('quote', QuoteController::class);
 });

@@ -112,4 +112,9 @@ class FollowUp extends Model
     {
         return $this->hasOne(FailedSale::class, 'follow_up_id');
     }
+
+    public function quote()
+    {
+        return $this->hasMany(Quote::class, 'follow_up_id');
+    }
 }

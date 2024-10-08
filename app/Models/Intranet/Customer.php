@@ -65,4 +65,9 @@ class Customer extends Model
     {
         return $this->hasMany(FollowUp::class, 'customer_id');
     }
+
+    public function quote()
+    {
+        return $this->hasMany(Quote::class, 'customer_id');
+    }
 }

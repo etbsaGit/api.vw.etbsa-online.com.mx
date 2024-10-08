@@ -35,6 +35,7 @@ class PutEmployeeRequest extends FormRequest
             'sales_key' => ['nullable', 'string', 'max:191', Rule::unique('employees')->ignore($this->route("employee")->id)],
             'phone' => ['required', 'string', 'max:191', Rule::unique('employees')->ignore($this->route("employee")->id)],
             'base64' => ['nullable', 'string'],
+            'base64qr' => ['nullable', 'string'],
             'email' => ['nullable', 'email', Rule::unique('users')->ignore($this->route("employee")->user_id)],
             'type_id' => ['nullable', 'integer', 'exists:types,id'],
             'position_id' => ['nullable', 'integer', 'exists:positions,id'],

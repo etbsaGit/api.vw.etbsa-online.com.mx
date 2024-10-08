@@ -18,6 +18,13 @@ class Agency extends Model
         'state_id',
     ];
 
+    protected $appends = ['fullAddress'];
+
+    public function getFullAddressAttribute()
+    {
+        return $this->address . ' ' . $this->district . ' ' . $this->zip_code . ' ' . $this->municipality->name . ' ' . $this->state->name;
+    }
+
     public function municipality()
     {
         return $this->belongsTo(Municipality::class, 'municipality_id');

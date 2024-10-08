@@ -147,9 +147,6 @@ class FollowUpController extends ApiController
         return $this->respond($firstFollowUp->load('children'));
     }
 
-
-
-
     /**
      * Display the specified resource.
      */
@@ -173,6 +170,7 @@ class FollowUpController extends ApiController
                 $query->orderBy('date', 'desc'); // Ordenar por fecha del más viejo al más reciente
             },
             'children.percentage',
+            'quote',
         ]);
 
         return $this->respond($followUp);

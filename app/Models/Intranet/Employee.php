@@ -25,18 +25,26 @@ class Employee extends Model
         'sales_key',
         'phone',
         'picture',
+        'qrpath',
         'user_id',
         'type_id',
         'position_id',
         'department_id'
     ];
 
-    protected $appends = ['shortName','fullName','pic'];
+    protected $appends = ['shortName','fullName','pic','qr'];
 
     public function pic(): Attribute
     {
         return Attribute::make(
             get: fn () => $this->picture ? Storage::disk('s3')->url($this->picture) : null
+        );
+    }
+
+    public function qr(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->qrpath ? Storage::disk('s3')->url($this->qrpath) : null
         );
     }
 
@@ -53,6 +61,7 @@ class Employee extends Model
 
         static::deleting(function ($employee) {
             Storage::disk('s3')->delete($employee->picture);
+            Storage::disk('s3')->delete($employee->qrpath);
         });
     }
 
@@ -109,5 +118,10 @@ class Employee extends Model
     public function followUp()
     {
         return $this->hasMany(FollowUp::class, 'employee_id');
+    }
+
+    public function quote()
+    {
+        return $this->hasMany(Quote::class, 'employee_id');
     }
 }
