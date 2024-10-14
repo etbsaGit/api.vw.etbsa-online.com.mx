@@ -26,6 +26,8 @@ class StoreSaleRequest extends FormRequest
     {
         return [
             'id_sale' => ['required', 'string', 'unique:sales', 'max:191'],
+            'date' => ['required', 'date'],
+            'amount' => ['required', 'numeric'],
             'inventory_id' => ['required', 'integer', 'exists:inventories,id', 'unique:sales'],
             'status_id' => ['required', 'integer', 'exists:statuses,id'],
             'sales_channel_id' => ['required', 'integer', 'exists:types,id'],

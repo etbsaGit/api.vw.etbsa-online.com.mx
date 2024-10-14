@@ -57,7 +57,7 @@ class Inventory extends Model
         return new Attribute(
             get: function () {
 
-                return $this->vehicle->name . $this->serial_number;
+                return $this->vehicle->name .' '. $this->serial_number;
             }
         );
     }

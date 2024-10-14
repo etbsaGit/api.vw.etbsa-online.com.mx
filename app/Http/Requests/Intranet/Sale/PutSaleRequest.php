@@ -27,6 +27,8 @@ class PutSaleRequest extends FormRequest
     {
         return [
             'id_sale' => ['required', 'string', 'max:191', Rule::unique('sales')->ignore($this->route("sale")->id)],
+            'date' => ['required', 'date'],
+            'amount' => ['required', 'numeric'],
             'inventory_id' => ['required', 'integer', 'exists:inventories,id', Rule::unique('sales')->ignore($this->route("sale")->id)],
             'status_id' => ['required', 'integer', 'exists:statuses,id'],
             'sales_channel_id' => ['required', 'integer', 'exists:types,id'],

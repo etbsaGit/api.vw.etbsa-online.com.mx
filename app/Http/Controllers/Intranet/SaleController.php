@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Intranet;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\Intranet\Sale;
 use App\Models\Intranet\Type;
@@ -10,10 +11,10 @@ use App\Models\Intranet\Status;
 use App\Models\Intranet\Customer;
 use App\Models\Intranet\Employee;
 use App\Models\Intranet\SaleDate;
+use App\Models\Intranet\Inventory;
 use App\Http\Controllers\ApiController;
 use App\Http\Requests\Intranet\Sale\PutSaleRequest;
 use App\Http\Requests\Intranet\Sale\StoreSaleRequest;
-use App\Models\Intranet\Inventory;
 
 class SaleController extends ApiController
 {
@@ -78,18 +79,57 @@ class SaleController extends ApiController
      */
     public function update(PutSaleRequest $request, Sale $sale)
     {
+        // Obtener el inventory_id actual y el nuevo desde la solicitud
+        $currentInventoryId = $sale->inventory_id; // Suponiendo que tienes esta relación
+        $newInventoryId = $request->input('inventory_id');
+
+        // Verificar si el inventory_id ha cambiado
+        if ($currentInventoryId != $newInventoryId) {
+            // Recuperar el inventario anterior
+            $previousInventory = Inventory::withTrashed()->find($currentInventoryId);
+
+            if ($previousInventory) {
+                $previousInventory->restore(); // Restaurar el inventario anterior
+            }
+
+            // Eliminar el nuevo inventario si existe
+            if ($newInventoryId) {
+                $newInventory = Inventory::find($newInventoryId);
+                if ($newInventory) {
+                    $newInventory->delete(); // Eliminar el nuevo inventario
+                }
+            }
+        }
+
+        // Actualizar la venta
         $sale->update($request->validated());
+
         return $this->respond($sale);
     }
+
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(Sale $sale)
     {
+        // Obtener el inventory_id de la venta
+        $inventoryId = $sale->inventory_id;
+
+        // Verificar si hay un inventory_id y restaurar el inventario asociado
+        if ($inventoryId) {
+            $inventory = Inventory::withTrashed()->find($inventoryId);
+            if ($inventory) {
+                $inventory->restore(); // Restaurar el inventario asociado
+            }
+        }
+
+        // Eliminar la venta
         $sale->delete();
+
         return $this->respondSuccess();
     }
+
 
     public function getOptions()
     {
@@ -105,5 +145,284 @@ class SaleController extends ApiController
         ];
 
         return $this->respond($data);
+    }
+
+    //no se se esta usando
+    public function perAgency(Request $request)
+    {
+        // Obtener mes y año del request
+        $month = $request->input('month');
+        $year = $request->input('year');
+        $agency = Agency::find($request->input('agency_id'));
+
+        $employees = $agency->employees->load('sales', 'quote', 'targets'); // Carga los empleados con sus relaciones
+
+        // Obtener el ID del tipo "Venta" y "Prospección"
+        $ventaTypeId = Type::where('name', 'Venta')->where('type_key', 'target')->value('id');
+        $prospeccionTypeId = Type::where('name', 'Prospección')->where('type_key', 'target')->value('id');
+
+        // Verificar si se encontraron los tipos
+        if (!$ventaTypeId || !$prospeccionTypeId) {
+            return $this->respond(['message' => 'Tipo "Venta" o "Prospección" no encontrado'], 404);
+        }
+
+        foreach ($employees as $employee) {
+            // Ventas del mes y año
+            $salesForMonth = $employee->sales->filter(function ($sale) use ($month, $year) {
+                $saleDate = Carbon::parse($sale->date);
+                return $saleDate->month == $month && $saleDate->year == $year;
+            });
+
+            // Quotes del mes y año
+            $quotesForMonth = $employee->quote->filter(function ($quote) use ($month, $year) {
+                return $quote->created_at->month == $month && $quote->created_at->year == $year;
+            });
+
+            // Filtrar metas del mes y año
+            $targetsForMonth = $employee->targets->filter(function ($target) use ($month, $year, $ventaTypeId, $prospeccionTypeId) {
+                return $target->month == $month && $target->year == $year &&
+                    ($target->type_id == $ventaTypeId || $target->type_id == $prospeccionTypeId);
+            });
+
+            // Sumar las ventas
+            $totalSales = $salesForMonth->sum('amount');
+            $totalQuantitySold = $salesForMonth->count(); // Cantidad de ventas
+
+            // Sumar las quotes
+            $totalQuotes = $quotesForMonth->sum('amount');
+            $totalQuantityQuotes = $quotesForMonth->count(); // Cantidad de quotes
+
+            // Filtrar metas para ventas
+            $targetsForSales = $targetsForMonth->filter(function ($target) use ($ventaTypeId) {
+                return $target->type_id == $ventaTypeId;
+            });
+
+            // Filtrar metas para prospección
+            $targetsForProspeccion = $targetsForMonth->filter(function ($target) use ($prospeccionTypeId) {
+                return $target->type_id == $prospeccionTypeId;
+            });
+
+            // Sumar metas para ventas
+            $totalTargetsSales = $targetsForSales->sum('value');
+            $totalQuantityTargetsSales = $targetsForSales->sum('quantity');
+
+            // Sumar metas para prospección
+            $totalTargetsProspeccion = $targetsForProspeccion->sum('value');
+            $totalQuantityTargetsProspeccion = $targetsForProspeccion->sum('quantity');
+
+            // Calcular el porcentaje y diferencias para ventas
+            $percentageDifferenceSales = $totalTargetsSales > 0
+                ? number_format(($totalSales / $totalTargetsSales) * 100, 2)
+                : ($totalSales > 0 ? 100 : 0);
+            $differenceSales = $totalSales - $totalTargetsSales;
+
+            // Calcular el porcentaje y diferencias para prospecciones
+            $percentageDifferenceProspeccion = $totalTargetsProspeccion > 0
+                ? number_format(($totalQuotes / $totalTargetsProspeccion) * 100, 2)
+                : ($totalQuotes > 0 ? 100 : 0);
+            $differenceProspeccion = $totalQuotes - $totalTargetsProspeccion;
+
+            // Calcular diferencias de cantidad para ventas
+            $quantityDifferenceSales = $totalQuantitySold - $totalQuantityTargetsSales;
+            $quantityPercentageDifferenceSales = $totalQuantityTargetsSales > 0
+                ? number_format(($totalQuantitySold / $totalQuantityTargetsSales) * 100, 2)
+                : ($totalQuantitySold > 0 ? 100 : 0);
+
+            // Calcular diferencias de cantidad para prospecciones
+            $quantityDifferenceProspeccion = $totalQuantityQuotes - $totalQuantityTargetsProspeccion;
+            $quantityPercentageDifferenceProspeccion = $totalQuantityTargetsProspeccion > 0
+                ? number_format(($totalQuantityQuotes / $totalQuantityTargetsProspeccion) * 100, 2)
+                : ($totalQuantityQuotes > 0 ? 100 : 0);
+
+            // Agregar un resumen
+            $employee->sales_summary = [
+                'sales' => [
+                    'total_sales' => $totalSales,
+                    'total_targets' => $totalTargetsSales,
+                    'met_target' => $totalSales >= $totalTargetsSales,
+                    'percentage_difference' => $percentageDifferenceSales,
+                    'difference' => $differenceSales,
+                    'total_quantity_sold' => $totalQuantitySold,
+                    'total_quantity_targets' => $totalQuantityTargetsSales,
+                    'quantity_met' => $totalQuantitySold >= $totalQuantityTargetsSales,
+                    'quantity_percentage_difference' => $quantityPercentageDifferenceSales,
+                    'quantity_difference' => $quantityDifferenceSales,
+                ],
+                'quotes' => [
+                    'total_quotes' => $totalQuotes,
+                    'total_targets' => $totalTargetsProspeccion,
+                    'met_target' => $totalQuotes >= $totalTargetsProspeccion,
+                    'percentage_difference' => $percentageDifferenceProspeccion,
+                    'difference' => $differenceProspeccion,
+                    'total_quantity_quotes' => $totalQuantityQuotes,
+                    'total_quantity_targets' => $totalQuantityTargetsProspeccion,
+                    'quantity_met' => $totalQuantityQuotes >= $totalQuantityTargetsProspeccion,
+                    'quantity_percentage_difference' => $quantityPercentageDifferenceProspeccion,
+                    'quantity_difference' => $quantityDifferenceProspeccion,
+                ],
+            ];
+        }
+        return $this->respond($employees); // Responde con los empleados y su resumen
+    }
+
+    public function getAgency(Request $request)
+    {
+        // Obtener mes y año del request
+        $month = $request->input('month');
+        $year = $request->input('year');
+        $agency = Agency::find($request->input('agency_id'));
+
+        $employees = $agency->employees->load('sales', 'quote', 'targets'); // Carga los empleados con sus relaciones
+
+        // Obtener el ID del tipo "Venta" y "Prospección"
+        $ventaTypeId = Type::where('name', 'Venta')->where('type_key', 'target')->value('id');
+        $prospeccionTypeId = Type::where('name', 'Prospección')->where('type_key', 'target')->value('id');
+
+        // Verificar si se encontraron los tipos
+        if (!$ventaTypeId || !$prospeccionTypeId) {
+            return $this->respond(['message' => 'Tipo "Venta" o "Prospección" no encontrado'], 404);
+        }
+
+        // Inicializar variables para el resumen de la sucursal
+        $totalSalesAgency = 0;
+        $totalQuotesAgency = 0;
+        $totalTargetsSalesAgency = 0;
+        $totalTargetsProspeccionAgency = 0;
+        $totalQuantitySoldAgency = 0;
+        $totalQuantityQuotesAgency = 0;
+        $totalQuantityTargetsSalesAgency = 0; // Cantidad total de metas de ventas
+        $totalQuantityTargetsProspeccionAgency = 0; // Cantidad total de metas de prospección
+
+        foreach ($employees as $employee) {
+            // Ventas del mes y año
+            $salesForMonth = $employee->sales->filter(function ($sale) use ($month, $year) {
+                $saleDate = Carbon::parse($sale->date);
+                return $saleDate->month == $month && $saleDate->year == $year;
+            });
+
+            // Quotes del mes y año
+            $quotesForMonth = $employee->quote->filter(function ($quote) use ($month, $year) {
+                return $quote->created_at->month == $month && $quote->created_at->year == $year;
+            });
+
+            // Filtrar metas del mes y año
+            $targetsForMonth = $employee->targets->filter(function ($target) use ($month, $year, $ventaTypeId, $prospeccionTypeId) {
+                return $target->month == $month && $target->year == $year &&
+                    ($target->type_id == $ventaTypeId || $target->type_id == $prospeccionTypeId);
+            });
+
+            // Sumar las ventas
+            $totalSales = $salesForMonth->sum('amount');
+            $totalQuantitySold = $salesForMonth->count(); // Cantidad de ventas
+
+            // Sumar las quotes
+            $totalQuotes = $quotesForMonth->sum('amount');
+            $totalQuantityQuotes = $quotesForMonth->count(); // Cantidad de quotes
+
+            // Filtrar metas para ventas
+            $targetsForSales = $targetsForMonth->filter(function ($target) use ($ventaTypeId) {
+                return $target->type_id == $ventaTypeId;
+            });
+
+            // Filtrar metas para prospección
+            $targetsForProspeccion = $targetsForMonth->filter(function ($target) use ($prospeccionTypeId) {
+                return $target->type_id == $prospeccionTypeId;
+            });
+
+            // Sumar metas para ventas
+            $totalTargetsSales = $targetsForSales->sum('value');
+            $totalQuantityTargetsSales = $targetsForSales->sum('quantity');
+
+            // Sumar metas para prospección
+            $totalTargetsProspeccion = $targetsForProspeccion->sum('value');
+            $totalQuantityTargetsProspeccion = $targetsForProspeccion->sum('quantity');
+
+            // Sumar totales para la sucursal
+            $totalSalesAgency += $totalSales;
+            $totalQuotesAgency += $totalQuotes;
+            $totalTargetsSalesAgency += $totalTargetsSales;
+            $totalTargetsProspeccionAgency += $totalTargetsProspeccion;
+            $totalQuantitySoldAgency += $totalQuantitySold;
+            $totalQuantityQuotesAgency += $totalQuantityQuotes;
+            $totalQuantityTargetsSalesAgency += $totalQuantityTargetsSales;
+            $totalQuantityTargetsProspeccionAgency += $totalQuantityTargetsProspeccion;
+
+            // Agregar un resumen por empleado
+            $employee->sales_summary = [
+                'sales' => [
+                    'total_sales' => $totalSales,
+                    'total_targets' => $totalTargetsSales,
+                    'met_target' => $totalSales >= $totalTargetsSales,
+                    'percentage_difference' => $totalTargetsSales > 0
+                        ? number_format(($totalSales / $totalTargetsSales) * 100, 2)
+                        : ($totalSales > 0 ? 100 : 0),
+                    'difference' => $totalSales - $totalTargetsSales,
+                    'total_quantity_sold' => $totalQuantitySold,
+                    'total_quantity_targets' => $totalQuantityTargetsSales,
+                    'quantity_met' => $totalQuantitySold >= $totalQuantityTargetsSales,
+                    'quantity_percentage_difference' => $totalQuantityTargetsSales > 0
+                        ? number_format(($totalQuantitySold / $totalQuantityTargetsSales) * 100, 2)
+                        : ($totalQuantitySold > 0 ? 100 : 0),
+                    'quantity_difference' => $quantityDifferenceSales = $totalQuantitySold - $totalQuantityTargetsSales,
+                ],
+                'quotes' => [
+                    'total_quotes' => $totalQuotes,
+                    'total_targets' => $totalTargetsProspeccion,
+                    'met_target' => $totalQuotes >= $totalTargetsProspeccion,
+                    'percentage_difference' => $totalTargetsProspeccion > 0
+                        ? number_format(($totalQuotes / $totalTargetsProspeccion) * 100, 2)
+                        : ($totalQuotes > 0 ? 100 : 0),
+                    'difference' => $totalQuotes - $totalTargetsProspeccion,
+                    'total_quantity_quotes' => $totalQuantityQuotes,
+                    'total_quantity_targets' => $totalQuantityTargetsProspeccion,
+                    'quantity_met' => $totalQuantityQuotes >= $totalQuantityTargetsProspeccion,
+                    'quantity_percentage_difference' => $totalQuantityTargetsProspeccion > 0
+                        ? number_format(($totalQuantityQuotes / $totalQuantityTargetsProspeccion) * 100, 2)
+                        : ($totalQuantityQuotes > 0 ? 100 : 0),
+                    'quantity_difference' => $quantityDifferenceProspeccion = $totalQuantityQuotes - $totalQuantityTargetsProspeccion,
+                ],
+            ];
+        }
+
+        // Resumen acumulado de la sucursal
+        $agency_summary = [
+            'sales' => [
+                'total_sales' => $totalSalesAgency,
+                'total_targets' => $totalTargetsSalesAgency,
+                'met_target' => $totalSalesAgency >= $totalTargetsSalesAgency,
+                'percentage_difference' => $totalTargetsSalesAgency > 0
+                    ? number_format(($totalSalesAgency / $totalTargetsSalesAgency) * 100, 2)
+                    : ($totalSalesAgency > 0 ? 100 : 0),
+                'difference' => $totalSalesAgency - $totalTargetsSalesAgency,
+                'total_quantity_sold' => $totalQuantitySoldAgency,
+                'total_quantity_targets' => $totalQuantityTargetsSalesAgency,
+                'quantity_met' => $totalQuantitySoldAgency >= $totalQuantityTargetsSalesAgency,
+                'quantity_percentage_difference' => $totalQuantityTargetsSalesAgency > 0
+                    ? number_format(($totalQuantitySoldAgency / $totalQuantityTargetsSalesAgency) * 100, 2)
+                    : ($totalQuantitySoldAgency > 0 ? 100 : 0),
+                'quantity_difference' => $totalQuantitySoldAgency - $totalQuantityTargetsSalesAgency,
+            ],
+            'quotes' => [
+                'total_quotes' => $totalQuotesAgency,
+                'total_targets' => $totalTargetsProspeccionAgency,
+                'met_target' => $totalQuotesAgency >= $totalTargetsProspeccionAgency,
+                'percentage_difference' => $totalTargetsProspeccionAgency > 0
+                    ? number_format(($totalQuotesAgency / $totalTargetsProspeccionAgency) * 100, 2)
+                    : ($totalQuotesAgency > 0 ? 100 : 0),
+                'difference' => $totalQuotesAgency - $totalTargetsProspeccionAgency,
+                'total_quantity_quotes' => $totalQuantityQuotesAgency,
+                'total_quantity_targets' => $totalQuantityTargetsProspeccionAgency,
+                'quantity_met' => $totalQuantityQuotesAgency >= $totalQuantityTargetsProspeccionAgency,
+                'quantity_percentage_difference' => $totalQuantityTargetsProspeccionAgency > 0
+                    ? number_format(($totalQuantityQuotesAgency / $totalQuantityTargetsProspeccionAgency) * 100, 2)
+                    : ($totalQuantityQuotesAgency > 0 ? 100 : 0),
+                'quantity_difference' => $totalQuantityQuotesAgency - $totalQuantityTargetsProspeccionAgency,
+            ],
+        ];
+
+        return $this->respond([
+            'employees' => $employees, // Resumen de cada empleado
+            'agency_summary' => $agency_summary, // Resumen acumulado de la sucursal
+        ]);
     }
 }

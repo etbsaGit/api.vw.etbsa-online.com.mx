@@ -78,6 +78,10 @@ Route::middleware(['auth:sanctum', 'cors'])->group(function () {
     Route::get('quotes/followUp/{followUp}', [QuoteController::class, 'getPerFollow']);
     Route::get('quotes/options', [QuoteController::class, 'getOptions']);
 
+    // --Reportes--
+    Route::post('sales/report/agency', [SaleController::class, 'perAgency']);
+    Route::post('sales/report/agency/all', [SaleController::class, 'getAgency']);
+
     // --Api resourse--
     Route::apiResource('state', StateController::class);
     Route::apiResource('municipality', MunicipalityController::class);
