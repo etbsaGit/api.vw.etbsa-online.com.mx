@@ -25,10 +25,20 @@ class StoreSaleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id_sale' => ['required', 'string', 'unique:sales', 'max:191'],
+            'id_sale' => [
+                'required',
+                'string',
+                'max:191',
+                'unique:sales,id_sale,NULL,id_sale,cancel,0' // Aquí se aplica el filtro
+            ],
             'date' => ['required', 'date'],
             'amount' => ['required', 'numeric'],
-            'inventory_id' => ['required', 'integer', 'exists:inventories,id', 'unique:sales'],
+            'inventory_id' => [
+                'required',
+                'integer',
+                'exists:inventories,id',
+                'unique:sales,inventory_id,NULL,id_sale,cancel,0' // Y aquí también
+            ],
             'status_id' => ['required', 'integer', 'exists:statuses,id'],
             'sales_channel_id' => ['required', 'integer', 'exists:types,id'],
             'type_id' => ['required', 'integer', 'exists:types,id'],
@@ -36,8 +46,14 @@ class StoreSaleRequest extends FormRequest
             'customer_id' => ['required', 'integer', 'exists:customers,id'],
             'employee_id' => ['required', 'integer', 'exists:employees,id'],
             'comments' => ['nullable', 'string', 'max:191'],
+            'cancellation_reason' => ['nullable', 'string', 'max:191'],
+            'cancellation_folio' => ['nullable', 'string', 'max:191'],
+            'cancellation_date' => ['nullable', 'date'],
+            'cancel' => ['required', 'boolean'],
         ];
     }
+
+
 
     function failedValidation(Validator $validator)
     {

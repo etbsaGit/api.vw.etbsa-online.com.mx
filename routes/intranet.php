@@ -79,8 +79,8 @@ Route::middleware(['auth:sanctum', 'cors'])->group(function () {
     Route::get('quotes/options', [QuoteController::class, 'getOptions']);
 
     // --Reportes--
-    Route::post('sales/report/agency', [SaleController::class, 'perAgency']);
     Route::post('sales/report/agency/all', [SaleController::class, 'getAgency']);
+    Route::post('sales/report/agency/pdf', [SaleController::class, 'createPDF']);
 
     // --Api resourse--
     Route::apiResource('state', StateController::class);

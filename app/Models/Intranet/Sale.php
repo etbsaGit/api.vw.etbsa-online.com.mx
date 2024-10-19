@@ -25,6 +25,10 @@ class Sale extends Model
         'customer_id',
         'employee_id',
         'date',
+        'cancellation_reason',
+        'cancel',
+        'cancellation_folio',
+        'cancellation_date',
     ];
 
     protected $appends = ['inventory_with_trashed'];

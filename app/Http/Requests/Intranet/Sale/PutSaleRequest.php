@@ -26,10 +26,24 @@ class PutSaleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id_sale' => ['required', 'string', 'max:191', Rule::unique('sales')->ignore($this->route("sale")->id)],
+            'id_sale' => [
+                'required',
+                'string',
+                'max:191',
+                Rule::unique('sales')->where(function ($query) {
+                    return $query->where('cancel', 0);
+                })->ignore($this->route("sale")->id)
+            ],
             'date' => ['required', 'date'],
             'amount' => ['required', 'numeric'],
-            'inventory_id' => ['required', 'integer', 'exists:inventories,id', Rule::unique('sales')->ignore($this->route("sale")->id)],
+            'inventory_id' => [
+                'required',
+                'integer',
+                'exists:inventories,id',
+                Rule::unique('sales')->where(function ($query) {
+                    return $query->where('cancel', 0);
+                })->ignore($this->route("sale")->id)
+            ],
             'status_id' => ['required', 'integer', 'exists:statuses,id'],
             'sales_channel_id' => ['required', 'integer', 'exists:types,id'],
             'type_id' => ['required', 'integer', 'exists:types,id'],
@@ -37,6 +51,10 @@ class PutSaleRequest extends FormRequest
             'customer_id' => ['required', 'integer', 'exists:customers,id'],
             'employee_id' => ['required', 'integer', 'exists:employees,id'],
             'comments' => ['nullable', 'string', 'max:191'],
+            'cancellation_reason' => ['nullable', 'string', 'max:191'],
+            'cancellation_folio' => ['nullable', 'string', 'max:191'],
+            'cancellation_date' => ['nullable', 'date'],
+            'cancel' => ['required', 'boolean'],
         ];
     }
 
