@@ -12,10 +12,12 @@ use App\Models\Intranet\FollowUp;
 use App\Models\Intranet\Position;
 use App\Models\Intranet\FailedSale;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\ApiController;
 use App\Http\Requests\Intranet\FollowUp\NextFollowUpRequest;
 use App\Http\Requests\Intranet\FollowUp\StoreFollowUpRequest;
 use App\Http\Requests\Intranet\FollowUp\AddFeedBackFollowUpRequest;
+use App\Mail\FollowUp\followUpMailable;
 
 class FollowUpController extends ApiController
 {
@@ -143,6 +145,31 @@ class FollowUpController extends ApiController
         $secondFollowUpData['comments'] = $next_follow['comments'];   // Añade el ID del primer FollowUp
 
         $secondFollowUp = FollowUp::create($secondFollowUpData);
+
+        $customer = $firstFollowUp->customer;
+
+        // Obtén el gerente que tiene la posición "gerente" y está asociado al municipio del cliente
+        $gerente = Employee::whereHas('position', function ($query) {
+            $query->where('positions.name', 'gerente'); // Especifica la tabla 'positions'
+        })
+            ->whereHas('municipalities', function ($query) use ($customer) {
+                $query->where('municipalities.id', $customer->municipality_id); // Especifica la tabla 'municipalities'
+            })
+            ->first();
+
+        if ($gerente) {
+            $to_email = $gerente->user->email;
+
+            $to_name = $gerente->fullName;
+
+            $correo = [
+                'to_name' => $to_name,
+                'follow_up' => $firstFollowUp->load('employee.agency'),
+                'customer' => $customer,
+            ];
+
+            Mail::to($to_email)->send(new followUpMailable($correo));
+        }
 
         return $this->respond($firstFollowUp->load('children'));
     }

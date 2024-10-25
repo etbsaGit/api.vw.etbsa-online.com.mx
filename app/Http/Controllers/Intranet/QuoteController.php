@@ -34,19 +34,25 @@ class QuoteController extends ApiController
     public function store(StoreQuoteRequest $request)
     {
         $quote = Quote::create($request->validated());
+        $src = null;
+        $srcQR = null;
 
         Carbon::setLocale('es');
         $fecha = $quote->created_at->locale('es')->translatedFormat('d \d\e F \d\e Y');
         $vigencia = Carbon::parse($quote->expiration_date)->locale('es')->translatedFormat('d \d\e F \d\e Y');
 
-        $imageData = base64_encode(file_get_contents($quote->employee->pic));
-        $src = 'data:image/jpeg;base64,' . $imageData;
+        if ($quote->employee->pic) {
+            $imageData = base64_encode(file_get_contents($quote->employee->pic));
+            $src = 'data:image/jpeg;base64,' . $imageData;
+        }
 
-        $imageDataQR = base64_encode(file_get_contents($quote->employee->qr));
-        $srcQR = 'data:image/jpeg;base64,' . $imageDataQR;
+        if ($quote->employee->qr) {
+            $imageDataQR = base64_encode(file_get_contents($quote->employee->qr));
+            $srcQR = 'data:image/jpeg;base64,' . $imageDataQR;
+        }
 
         $data = [
-            'customer' =>$quote->customer->name,
+            'customer' => $quote->customer->name,
             'folio' => $quote->id,
             'fecha' => $fecha,
             'precio_unitario' => $quote->amount,
@@ -106,6 +112,8 @@ class QuoteController extends ApiController
      */
     public function update(StoreQuoteRequest $request, Quote $quote)
     {
+        $src = null;
+        $srcQR = null;
 
         // Eliminar el archivo existente de S3 si existe
         if ($quote->path) {
@@ -119,14 +127,18 @@ class QuoteController extends ApiController
         $fecha = $quote->created_at->locale('es')->translatedFormat('d \d\e F \d\e Y');
         $vigencia = Carbon::parse($quote->expiration_date)->locale('es')->translatedFormat('d \d\e F \d\e Y');
 
-        $imageData = base64_encode(file_get_contents($quote->employee->pic));
-        $src = 'data:image/jpeg;base64,' . $imageData;
+        if ($quote->employee->pic) {
+            $imageData = base64_encode(file_get_contents($quote->employee->pic));
+            $src = 'data:image/jpeg;base64,' . $imageData;
+        }
 
-        $imageDataQR = base64_encode(file_get_contents($quote->employee->qr));
-        $srcQR = 'data:image/jpeg;base64,' . $imageDataQR;
+        if ($quote->employee->qr) {
+            $imageDataQR = base64_encode(file_get_contents($quote->employee->qr));
+            $srcQR = 'data:image/jpeg;base64,' . $imageDataQR;
+        }
 
         $data = [
-            'customer' =>$quote->customer->name,
+            'customer' => $quote->customer->name,
             'folio' => $quote->id,
             'fecha' => $fecha,
             'precio_unitario' => $quote->amount,

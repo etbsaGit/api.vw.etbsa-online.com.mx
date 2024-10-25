@@ -25,7 +25,7 @@ class AttachMunicipalitiesRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'municipalities' => 'required|array',
+            'municipalities' => 'nullable|array',
             'municipalities.*' => 'integer|exists:municipalities,id',
         ];
     }
