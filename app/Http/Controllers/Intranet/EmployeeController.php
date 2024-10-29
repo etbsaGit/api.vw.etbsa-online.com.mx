@@ -44,6 +44,13 @@ class EmployeeController extends ApiController
             $employee->update($updateData);
         }
 
+        if (!is_null($request['base64qr'])) {
+            $relativePath  = $this->saveImage($request['base64qr'], $employee->default_path_folder);
+            $request['base64qr'] = $relativePath;
+            $updateData = ['qrpath' => $relativePath];
+            $employee->update($updateData);
+        }
+
         // Verificar si el campo email no es nulo y crear un usuario
         if (!is_null($request['email'])) {
             $email = $request['email'];
@@ -87,6 +94,16 @@ class EmployeeController extends ApiController
             $relativePath  = $this->saveImage($request['base64'], $employee->default_path_folder);
             $request['base64'] = $relativePath;
             $updateData = ['picture' => $relativePath];
+            $employee->update($updateData);
+        }
+
+        if (!is_null($request['base64qr'])) {
+            if ($employee->qrpath) {
+                Storage::disk('s3')->delete($employee->qrpath);
+            }
+            $relativePath  = $this->saveImage($request['base64qr'], $employee->default_path_folder);
+            $request['base64qr'] = $relativePath;
+            $updateData = ['qrpath' => $relativePath];
             $employee->update($updateData);
         }
 

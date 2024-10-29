@@ -4,14 +4,14 @@ namespace App\Http\Controllers\Intranet;
 
 use Illuminate\Http\Request;
 use App\Models\Intranet\Type;
+use App\Models\Intranet\Agency;
 use App\Models\Intranet\Status;
+use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\Intranet\Vehicle;
 use App\Models\Intranet\Inventory;
 use App\Http\Controllers\ApiController;
 use App\Http\Requests\Intranet\Inventory\PutInventoryRequest;
 use App\Http\Requests\Intranet\Inventory\StoreInventoryRequest;
-use App\Models\Intranet\Agency;
-use App\Models\Intranet\Vehicle;
-use App\Models\Intranet\VehicleBody;
 
 class InventoryController extends ApiController
 {
@@ -21,7 +21,7 @@ class InventoryController extends ApiController
     public function index(Request $request)
     {
         $filters = $request->all();
-        $inventories = Inventory::filterInventories($filters)->with('status','type','agency','vehicle','vehicleBody','vehicleBody.type')->paginate(10);
+        $inventories = Inventory::filterInventories($filters)->with('status', 'type', 'agency', 'vehicle')->paginate(10);
         return $this->respond($inventories);
     }
 
@@ -67,9 +67,35 @@ class InventoryController extends ApiController
             'types' => Type::where('type_key', 'inventory')->get(),
             'agencies' => Agency::all(),
             'vehicles' => Vehicle::all(),
-            'vehicleBodies' => VehicleBody::all(),
         ];
 
         return $this->respond($data);
+    }
+
+    public function getPDFQuote(Request $request, Inventory $inventory)
+    {
+        // return $this->respond($inventory->load('vehicle.vehicleDocs','status','type','agency'));
+
+        // Datos que quieres pasar a la vista
+        $data = [
+            'folio' => '000190924',
+            'fecha' => '19 de Septiembre 2024',
+            'precio_unitario' => 1597758.62,
+            'iva' => 255641.38,
+            'precio_total' => 1853400.00,
+            'condiciones_pago' => 'En una sola exhibición',
+            'fecha_entrega' => '4 a 5 semanas',
+            'adicionales' => 'Incluye Tanque Pipa de 10 mil Lts.',
+            'vigencia' => '30 de Septiembre 2024',
+            'vendedor' => [
+                'nombre' => 'Nombre del Vendedor',
+                'telefono' => '555-123-4567',
+                'email' => 'vendedor@empresa.com',
+                'empresa' => 'Empresa XYZ S.A. de C.V.',
+                'direccion' => 'Direccion 123'
+            ]
+        ];
+        $pdf = Pdf::loadView('pdf.quote.quote', $data); // Carga la vista quote.blade.php
+        return $pdf->download('quote.pdf'); // Descarga el PDF
     }
 }

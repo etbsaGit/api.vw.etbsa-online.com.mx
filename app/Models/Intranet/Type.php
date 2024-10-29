@@ -64,11 +64,6 @@ class Type extends Model
         return $this->hasMany(Target::class, 'type_id');
     }
 
-    public function vehicleBodies()
-    {
-        return $this->hasMany(VehicleBody::class, 'type_id');
-    }
-
     public function inventories()
     {
         return $this->hasMany(Inventory::class, 'type_id');
@@ -82,5 +77,15 @@ class Type extends Model
     public function percentage()
     {
         return $this->hasMany(FollowUp::class, 'percentage_id');
+    }
+
+    public function failedSale()
+    {
+        return $this->hasMany(FailedSale::class, 'type_id');
+    }
+
+    public function quote()
+    {
+        return $this->hasMany(Quote::class, 'type_id');
     }
 }

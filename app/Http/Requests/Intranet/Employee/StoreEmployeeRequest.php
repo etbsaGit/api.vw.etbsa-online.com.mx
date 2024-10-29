@@ -34,6 +34,7 @@ class StoreEmployeeRequest extends FormRequest
             'sales_key' => ['nullable', 'string', 'unique:employees,sales_key', 'max:191'],
             'phone' => ['required', 'string', 'unique:employees,phone', 'max:191'],
             'base64' => ['nullable', 'string'],
+            'base64qr' => ['nullable', 'string'],
             'email' => ['nullable', 'email', 'unique:users,email'],
             'type_id' => ['nullable', 'integer', 'exists:types,id'],
             'position_id' => ['nullable', 'integer', 'exists:positions,id'],

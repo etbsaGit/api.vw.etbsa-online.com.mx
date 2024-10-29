@@ -15,6 +15,7 @@ class Sale extends Model
 
     protected $fillable = [
         'id_sale',
+        'amount',
         'comments',
         'inventory_id',
         'status_id',
@@ -23,6 +24,11 @@ class Sale extends Model
         'agency_id',
         'customer_id',
         'employee_id',
+        'date',
+        'cancellation_reason',
+        'cancel',
+        'cancellation_folio',
+        'cancellation_date',
     ];
 
     protected $appends = ['inventory_with_trashed'];

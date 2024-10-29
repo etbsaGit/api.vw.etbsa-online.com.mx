@@ -28,4 +28,9 @@ class Status extends Model
     {
         return $this->hasMany(FollowUp::class, 'status_id');
     }
+
+    public function quote()
+    {
+        return $this->hasMany(Quote::class, 'status_id');
+    }
 }

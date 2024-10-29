@@ -26,22 +26,53 @@ class Inventory extends Model
         'year',
         'p_r',
         'comments',
+        'priority',
 
         'status_id',
         'type_id',
         'agency_id',
         'vehicle_id',
-        'vehicle_body_id'
     ];
 
-    protected $appends = ['days_in_inventory', 'm_y','model'];
+    protected $appends = ['days_in_inventory', 'm_y', 'model', 'lineaPrice','bono'];
+
+    public function getLineaPriceAttribute()
+    {
+        // Obtiene el tipo "Linea" como un único modelo
+        $lineType = Type::where('name', 'Lista')->first(); // Usa first() para obtener un único registro
+
+        // Verifica si se encontró el tipo
+        if ($lineType) {
+            // Filtra los precios donde el type_id es el correspondiente
+            $linePrice = $this->prices->where('type_id', $lineType->id)->first();
+            return $linePrice ? $linePrice->price : null; // Devuelve el precio o null si no existe
+        }
+
+        return null; // Devuelve null si no se encontró el tipo
+    }
+
+    public function getBonoAttribute()
+    {
+        // Obtiene el tipo "Linea" como un único modelo
+        $lineType = Type::where('name', 'Bono')->first(); // Usa first() para obtener un único registro
+
+        // Verifica si se encontró el tipo
+        if ($lineType) {
+            // Filtra los precios donde el type_id es el correspondiente
+            $linePrice = $this->prices->where('type_id', $lineType->id)->first();
+            return $linePrice ? $linePrice->price : null; // Devuelve el precio o null si no existe
+        }
+
+        return null; // Devuelve null si no se encontró el tipo
+    }
+
 
     public function model(): Attribute
     {
         return new Attribute(
             get: function () {
 
-                return $this->vehicle->name.$this->serial_number;
+                return $this->vehicle->name .' '. $this->serial_number;
             }
         );
     }
@@ -101,11 +132,6 @@ class Inventory extends Model
         return $this->belongsTo(Vehicle::class, 'vehicle_id');
     }
 
-    public function vehicleBody()
-    {
-        return $this->belongsTo(VehicleBody::class, 'vehicle_body_id');
-    }
-
     public function prices()
     {
         return $this->hasMany(Price::class, 'inventory_id');
@@ -116,4 +142,8 @@ class Inventory extends Model
         return $this->hasMany(Sale::class, 'inventory_id');
     }
 
+    public function quote()
+    {
+        return $this->hasMany(Quote::class, 'inventory_id');
+    }
 }

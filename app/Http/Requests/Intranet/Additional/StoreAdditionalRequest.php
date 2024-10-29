@@ -1,20 +1,20 @@
 <?php
 
-namespace App\Http\Requests\Intranet\VehicleBody;
+namespace App\Http\Requests\Intranet\Additional;
 
 use Illuminate\Http\Response;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Validation\ValidationException;
 
-class StoreVehicleBodyRequest extends FormRequest
+class StoreAdditionalRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return true;
+        return false;
     }
 
     /**
@@ -25,8 +25,11 @@ class StoreVehicleBodyRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'configuration' => ['required', 'string', 'max:191'],
-            'type_id' => ['required', 'integer', 'exists:types,id'],
+            'name' => ['required', 'string', 'max:191'],
+            'description' => ['nullable', 'string', 'max:191'],
+            'price' => ['required', 'decimal:2'],
+            'cost' => ['required', 'decimal:2'],
+            'quote_id' => ['required', 'integer', 'exists:quotes,id'],
         ];
     }
 

@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Requests\Intranet\Employee;
+namespace App\Http\Requests\Intranet\FailedSale;
 
 use Illuminate\Http\Response;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Validation\ValidationException;
 
-class AttachMunicipalitiesRequest extends FormRequest
+class StoreFailedSaleRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,8 +25,9 @@ class AttachMunicipalitiesRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'municipalities' => 'nullable|array',
-            'municipalities.*' => 'integer|exists:municipalities,id',
+            'comments' => ['nullable', 'string', 'max:191'],
+            'type_id' => ['required', 'integer', 'exists:types,id'],
+            'follow_up_id' => ['required', 'integer', 'exists:follow_ups,id'],
         ];
     }
 
