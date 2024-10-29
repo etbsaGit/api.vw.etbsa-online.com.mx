@@ -38,7 +38,11 @@ class PutInventoryRequest extends FormRequest
             'type_id' => ['nullable', 'integer', 'exists:types,id'],
             'agency_id' => ['required', 'integer', 'exists:agencies,id'],
             'vehicle_id' => ['required', 'integer', 'exists:vehicles,id'],
-            'vehicle_body_id' => ['nullable', 'integer', 'exists:vehicle_bodies,id'],
+            'priority' => [
+                'nullable',
+                'integer',
+                'unique:inventories,priority,NULL,id,vehicle_id,' . $this->input('vehicle_id') // Validación única con condición
+            ],
         ];
     }
 

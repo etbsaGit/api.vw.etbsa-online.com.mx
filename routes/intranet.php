@@ -19,10 +19,10 @@ use App\Http\Controllers\Intranet\FollowUpController;
 use App\Http\Controllers\Intranet\PositionController;
 use App\Http\Controllers\Intranet\SaleDateController;
 use App\Http\Controllers\Intranet\InventoryController;
+use App\Http\Controllers\Intranet\AdditionalController;
 use App\Http\Controllers\Intranet\DepartmentController;
 use App\Http\Controllers\Intranet\FailedSaleController;
 use App\Http\Controllers\Intranet\VehicleDocController;
-use App\Http\Controllers\Intranet\VehicleBodyController;
 use App\Http\Controllers\Intranet\MunicipalityController;
 use App\Http\Controllers\Intranet\VehicleFeatureController;
 
@@ -101,9 +101,9 @@ Route::middleware(['auth:sanctum', 'cors'])->group(function () {
     Route::apiResource('position', PositionController::class);
     Route::apiResource('target', TargetController::class);
     Route::apiResource('department', DepartmentController::class);
-    Route::apiResource('vehicleBody', VehicleBodyController::class);
     Route::apiResource('inventory', InventoryController::class);
     Route::apiResource('followUp', FollowUpController::class);
     Route::apiResource('failedSale', FailedSaleController::class);
     Route::apiResource('quote', QuoteController::class);
+    Route::apiResource('additional', AdditionalController::class);
 });

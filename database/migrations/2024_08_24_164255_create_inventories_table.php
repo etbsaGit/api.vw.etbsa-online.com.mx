@@ -35,9 +35,6 @@ return new class extends Migration
             $table->unsignedBigInteger('vehicle_id')->onDelete('restrict');
             $table->foreign('vehicle_id')->references('id')->on('vehicles');
 
-            $table->unsignedBigInteger('vehicle_body_id')->onDelete('restrict');
-            $table->foreign('vehicle_body_id')->references('id')->on('vehicle_bodies');
-
             $table->softDeletes();
 
             $table->timestamps();

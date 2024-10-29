@@ -12,6 +12,7 @@ use App\Models\Intranet\Status;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Intranet\FollowUp;
 use App\Models\Intranet\Inventory;
+use App\Models\Intranet\Additional;
 use App\Http\Controllers\ApiController;
 use Illuminate\Support\Facades\Storage;
 use setasign\Fpdi\PdfParser\StreamReader;
@@ -34,6 +35,16 @@ class QuoteController extends ApiController
     public function store(StoreQuoteRequest $request)
     {
         $quote = Quote::create($request->validated());
+
+        $additionals = $request['additionals'];
+
+        foreach ($additionals as $additional) {
+            $additional['quote_id'] = $quote->id;
+
+            // Crear un nuevo registro en la base de datos
+            Additional::create($additional);
+        }
+
         $src = null;
         $srcQR = null;
 
@@ -51,6 +62,8 @@ class QuoteController extends ApiController
             $srcQR = 'data:image/jpeg;base64,' . $imageDataQR;
         }
 
+        $images = $request['images'];
+
         $data = [
             'customer' => $quote->customer->name,
             'folio' => $quote->id,
@@ -60,9 +73,10 @@ class QuoteController extends ApiController
             'precio_total' => ($quote->amount) * 1.16,
             'condiciones_pago' => $quote->type->name,
             'fecha_entrega' => $quote->lead_time,
-            'adicionales' => $quote->additional,
+            'adicionales' => $quote->additionals,
             'vigencia' => $vigencia,
             'modelo' => $quote->inventory->vehicle->name,
+            'images' => $images,
             'vendedor' => [
                 'nombre' => $quote->employee->fullName,
                 'telefono' => $quote->employee->phone,
@@ -115,6 +129,12 @@ class QuoteController extends ApiController
         $src = null;
         $srcQR = null;
 
+        // Verificar si el quote tiene additionals
+        if ($quote->additionals()->exists()) {
+            // Borrar todos los additionals asociados al quote
+            $quote->additionals()->delete();
+        }
+
         // Eliminar el archivo existente de S3 si existe
         if ($quote->path) {
             Storage::disk('s3')->delete($quote->path);
@@ -122,6 +142,15 @@ class QuoteController extends ApiController
 
         // Actualizar la cotización
         $quote->update($request->validated());
+
+        $additionals = $request['additionals'];
+
+        foreach ($additionals as $additional) {
+            $additional['quote_id'] = $quote->id;
+
+            // Crear un nuevo registro en la base de datos
+            Additional::create($additional);
+        }
 
         Carbon::setLocale('es');
         $fecha = $quote->created_at->locale('es')->translatedFormat('d \d\e F \d\e Y');
@@ -137,6 +166,8 @@ class QuoteController extends ApiController
             $srcQR = 'data:image/jpeg;base64,' . $imageDataQR;
         }
 
+        $images = $request['images'];
+
         $data = [
             'customer' => $quote->customer->name,
             'folio' => $quote->id,
@@ -146,9 +177,10 @@ class QuoteController extends ApiController
             'precio_total' => ($quote->amount) * 1.16,
             'condiciones_pago' => $quote->type->name,
             'fecha_entrega' => $quote->lead_time,
-            'adicionales' => $quote->additional,
+            'adicionales' => $quote->additionals,
             'vigencia' => $vigencia,
             'modelo' => $quote->inventory->vehicle->name,
+            'images' => $images,
             'vendedor' => [
                 'nombre' => $quote->employee->fullName,
                 'telefono' => $quote->employee->phone,
@@ -202,7 +234,7 @@ class QuoteController extends ApiController
 
     public function getPerFollow(FollowUp $followUp)
     {
-        $quotes = Quote::where('follow_up_id', $followUp->id)->with('status', 'type', 'inventory.vehicle')->get();
+        $quotes = Quote::where('follow_up_id', $followUp->id)->with('status', 'type', 'inventory.vehicle', 'additionals')->get();
         return $this->respond($quotes);
     }
 
@@ -211,7 +243,7 @@ class QuoteController extends ApiController
         $data = [
             'statuses' => Status::where('status_key', 'quote')->get(),
             'types' => Type::where('type_key', 'quote')->get(),
-            'inventories' => Inventory::with('prices')->get(),
+            'inventories' => Inventory::where('priority', 1)->with('prices')->get(),
         ];
         return $this->respond($data);
     }

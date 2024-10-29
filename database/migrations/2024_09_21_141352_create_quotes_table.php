@@ -18,7 +18,6 @@ return new class extends Migration
             $table->integer('lead_time')->nullable();
 
             $table->string('comments')->nullable();
-            $table->string('additional')->nullable();
             $table->string('path')->nullable();
 
             $table->decimal('amount', 10, 2)->default(0.00);

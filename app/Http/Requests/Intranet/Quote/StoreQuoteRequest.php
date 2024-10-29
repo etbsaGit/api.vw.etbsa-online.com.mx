@@ -28,7 +28,6 @@ class StoreQuoteRequest extends FormRequest
             'expiration_date' => ['required', 'date'],
             'lead_time' => ['required', 'integer'],
             'comments' => ['nullable', 'string', 'max:191'],
-            'additional' => ['nullable', 'string', 'max:191'],
             'amount' => ['required', 'numeric'],
             'follow_up_id' => ['required', 'integer', 'exists:follow_ups,id'],
             'inventory_id' => ['required', 'integer', 'exists:inventories,id'],
@@ -36,6 +35,14 @@ class StoreQuoteRequest extends FormRequest
             'customer_id' => ['required', 'integer', 'exists:customers,id'],
             'status_id' => ['required', 'integer', 'exists:statuses,id'],
             'type_id' => ['required', 'integer', 'exists:types,id'],
+            'percentage' => ['nullable', 'integer'],
+            'bono' => ['nullable', 'numeric'],
+            'additionals' => ['nullable','array'],
+            'additionals.*.name' => ['required', 'string', 'max:191'],
+            'additionals.*.description' => ['nullable', 'string'],
+            'additionals.*.price' => ['required', 'numeric'],
+            'additionals.*.cost' => ['required', 'numeric'],
+            'images' => ['nullable','array'],
         ];
     }
 

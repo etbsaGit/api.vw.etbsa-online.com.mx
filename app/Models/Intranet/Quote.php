@@ -15,7 +15,6 @@ class Quote extends Model
         'expiration_date',
         'lead_time',
         'comments',
-        'additional',
         'path',
         'amount',
         'follow_up_id',
@@ -24,6 +23,8 @@ class Quote extends Model
         'customer_id',
         'status_id',
         'type_id',
+        'percentage',
+        'bono',
     ];
 
     protected $appends = ['realpath'];
@@ -70,5 +71,10 @@ class Quote extends Model
     public function type()
     {
         return $this->belongsTo(Type::class, 'type_id');
+    }
+
+    public function additionals()
+    {
+        return $this->hasMany(Additional::class, 'quote_id');
     }
 }

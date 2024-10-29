@@ -9,7 +9,6 @@ use App\Models\Intranet\Status;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Intranet\Vehicle;
 use App\Models\Intranet\Inventory;
-use App\Models\Intranet\VehicleBody;
 use App\Http\Controllers\ApiController;
 use App\Http\Requests\Intranet\Inventory\PutInventoryRequest;
 use App\Http\Requests\Intranet\Inventory\StoreInventoryRequest;
@@ -22,7 +21,7 @@ class InventoryController extends ApiController
     public function index(Request $request)
     {
         $filters = $request->all();
-        $inventories = Inventory::filterInventories($filters)->with('status', 'type', 'agency', 'vehicle', 'vehicleBody', 'vehicleBody.type')->paginate(10);
+        $inventories = Inventory::filterInventories($filters)->with('status', 'type', 'agency', 'vehicle')->paginate(10);
         return $this->respond($inventories);
     }
 
@@ -68,7 +67,6 @@ class InventoryController extends ApiController
             'types' => Type::where('type_key', 'inventory')->get(),
             'agencies' => Agency::all(),
             'vehicles' => Vehicle::all(),
-            'vehicleBodies' => VehicleBody::all(),
         ];
 
         return $this->respond($data);
@@ -76,7 +74,7 @@ class InventoryController extends ApiController
 
     public function getPDFQuote(Request $request, Inventory $inventory)
     {
-        // return $this->respond($inventory->load('vehicle.vehicleDocs','status','type','agency','vehicleBody',));
+        // return $this->respond($inventory->load('vehicle.vehicleDocs','status','type','agency'));
 
         // Datos que quieres pasar a la vista
         $data = [
