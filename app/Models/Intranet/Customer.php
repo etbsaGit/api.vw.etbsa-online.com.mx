@@ -70,4 +70,9 @@ class Customer extends Model
     {
         return $this->hasMany(Quote::class, 'customer_id');
     }
+
+    public function customerDocs()
+    {
+        return $this->hasMany(CustomerDoc::class, 'customer_id');
+    }
 }

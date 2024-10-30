@@ -39,7 +39,7 @@ class Quote extends Model
     protected function defaultPathFolder(): Attribute
     {
         return Attribute::make(
-            get: fn () => "intranet/customer/quotes/id_" . $this->id,
+            get: fn() => "intranet/customer/id_" . $this->followUp->customer->id . "/quotes",
         );
     }
 

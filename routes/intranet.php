@@ -23,6 +23,7 @@ use App\Http\Controllers\Intranet\AdditionalController;
 use App\Http\Controllers\Intranet\DepartmentController;
 use App\Http\Controllers\Intranet\FailedSaleController;
 use App\Http\Controllers\Intranet\VehicleDocController;
+use App\Http\Controllers\Intranet\CustomerDocController;
 use App\Http\Controllers\Intranet\MunicipalityController;
 use App\Http\Controllers\Intranet\VehicleFeatureController;
 
@@ -77,6 +78,7 @@ Route::middleware(['auth:sanctum', 'cors'])->group(function () {
     Route::post('inventories/quote/{inventory}', [InventoryController::class, 'getPDFQuote']);
     Route::get('quotes/followUp/{followUp}', [QuoteController::class, 'getPerFollow']);
     Route::get('quotes/options', [QuoteController::class, 'getOptions']);
+    Route::get('customerDoc/customer/{customer}', [CustomerDocController::class, 'getPerCustomer']);
 
     // --Reportes--
     Route::post('sales/report/agency/all', [SaleController::class, 'getAgency']);
@@ -106,4 +108,5 @@ Route::middleware(['auth:sanctum', 'cors'])->group(function () {
     Route::apiResource('failedSale', FailedSaleController::class);
     Route::apiResource('quote', QuoteController::class);
     Route::apiResource('additional', AdditionalController::class);
+    Route::apiResource('customerDoc', CustomerDocController::class);
 });

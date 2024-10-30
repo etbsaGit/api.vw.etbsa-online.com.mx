@@ -88,4 +88,9 @@ class Type extends Model
     {
         return $this->hasMany(Quote::class, 'type_id');
     }
+
+    public function customerDocs()
+    {
+        return $this->hasMany(CustomerDoc::class, 'type_id');
+    }
 }
