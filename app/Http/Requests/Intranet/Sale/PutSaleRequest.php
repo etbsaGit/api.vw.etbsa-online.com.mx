@@ -55,6 +55,13 @@ class PutSaleRequest extends FormRequest
             'cancellation_folio' => ['nullable', 'string', 'max:191'],
             'cancellation_date' => ['nullable', 'date'],
             'cancel' => ['required', 'boolean'],
+            'quote_id' => [
+                'nullable',
+                'integer',
+                Rule::unique('sales')->where(function ($query) {
+                    return $query->where('cancel', 0);
+                })->ignore($this->route("sale")->id)
+            ],
         ];
     }
 

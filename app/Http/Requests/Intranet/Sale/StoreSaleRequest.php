@@ -50,6 +50,12 @@ class StoreSaleRequest extends FormRequest
             'cancellation_folio' => ['nullable', 'string', 'max:191'],
             'cancellation_date' => ['nullable', 'date'],
             'cancel' => ['required', 'boolean'],
+            'quote_id' => [
+                'nullable',
+                'integer',
+                'exists:quotes,id',
+                'unique:sales,inventory_id,NULL,id_sale,cancel,0'
+            ],
         ];
     }
 

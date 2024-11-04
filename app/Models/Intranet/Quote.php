@@ -77,4 +77,9 @@ class Quote extends Model
     {
         return $this->hasMany(Additional::class, 'quote_id');
     }
+
+    public function sale()
+    {
+        return $this->hasOne(Sale::class, 'quote_id');
+    }
 }

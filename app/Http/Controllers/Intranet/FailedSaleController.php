@@ -3,11 +3,12 @@
 namespace App\Http\Controllers\Intranet;
 
 use Illuminate\Http\Request;
+use App\Models\Intranet\Quote;
 use App\Models\Intranet\Status;
+use App\Models\Intranet\FollowUp;
 use App\Models\Intranet\FailedSale;
 use App\Http\Controllers\ApiController;
 use App\Http\Requests\Intranet\FailedSale\StoreFailedSaleRequest;
-use App\Models\Intranet\FollowUp;
 
 class FailedSaleController extends ApiController
 {
@@ -40,6 +41,12 @@ class FailedSaleController extends ApiController
         // Actualiza el status_id del FollowUp
         $followUp->status_id = $status->id;
         $followUp->save();
+
+        // Obtén el status con el nombre 'Venta perdida'
+        $statusPerdida = Status::where('status_key', 'quote')->where('name', 'Perdida')->first();
+
+        // Actualiza el status_id para todas las quotes relacionadas
+        Quote::where('follow_up_id', $followUp->id)->update(['status_id' => $statusPerdida->id]);
 
         // Asume que 'children' es la relación que contiene los registros relacionados
         // Actualiza el status_id para todos los registros relacionados

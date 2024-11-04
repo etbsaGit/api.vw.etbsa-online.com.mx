@@ -29,6 +29,7 @@ class Sale extends Model
         'cancel',
         'cancellation_folio',
         'cancellation_date',
+        'quote_id',
     ];
 
     protected $appends = ['inventory_with_trashed'];
@@ -81,5 +82,10 @@ class Sale extends Model
     public function dates()
     {
         return $this->hasMany(SaleDate::class, 'sale_id');
+    }
+
+    public function quote()
+    {
+        return $this->belongsTo(Quote::class, 'quote_id');
     }
 }

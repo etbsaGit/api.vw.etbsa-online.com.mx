@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\Intranet\Sale;
 use App\Models\Intranet\Type;
+use App\Models\Intranet\Quote;
 use App\Models\Intranet\Agency;
 use App\Models\Intranet\Status;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -16,6 +17,7 @@ use App\Models\Intranet\Inventory;
 use App\Http\Controllers\ApiController;
 use App\Http\Requests\Intranet\Sale\PutSaleRequest;
 use App\Http\Requests\Intranet\Sale\StoreSaleRequest;
+use App\Models\Intranet\FollowUp;
 
 class SaleController extends ApiController
 {
@@ -40,6 +42,11 @@ class SaleController extends ApiController
     {
         // Crear la venta
         $sale = Sale::create($request->validated());
+
+        // Llamar a otra función si quote_id está presente
+        if ($request->has('quote_id')) {
+            $this->handleQuoteId($request->input('quote_id'));
+        }
 
         // Obtener el ID del tipo con el nombre 'Registro'
         $type = Type::where('name', 'Registro')->first();
@@ -357,5 +364,39 @@ class SaleController extends ApiController
 
         // Retornar el PDF en Base64
         return $this->respond($pdfBase64);
+    }
+
+    // Función que manejará el quote_id
+    private function handleQuoteId($quoteId)
+    {
+        // Buscar los estados 'Ganada' y 'Perdida'
+        $statusGanada = Status::where('status_key', 'quote')->where('name', 'Ganada')->first();
+        $statusPerdida = Status::where('status_key', 'quote')->where('name', 'Perdida')->first();
+
+        // Lógica para manejar el quote_id
+        $quote = Quote::find($quoteId);
+
+        if ($quote) {
+            // Obtener el follow_up_id del quote
+            $followUpId = $quote->follow_up_id;
+
+            $statusFollowGanada = Status::where('status_key', 'followUp')->where('name', 'Venta ganada')->first();
+            $follow = FollowUp::where('id',$followUpId)->first();
+            $follow->status_id = $statusFollowGanada->id;
+            $follow->save();
+
+            // Buscar todos los quotes con el mismo follow_up_id
+            $relatedQuotes = Quote::where('follow_up_id', $followUpId)->get();
+
+            // Actualizar el status_id de cada quote relacionado a 'Perdida'
+            foreach ($relatedQuotes as $relatedQuote) {
+                $relatedQuote->status_id = $statusPerdida->id; // Asignar el id de 'Perdida'
+                $relatedQuote->save(); // Guardar los cambios
+            }
+
+            // Cambiar el status_id del quote específico a 'Ganada'
+            $quote->status_id = $statusGanada->id; // Asignar el id de 'Ganada'
+            $quote->save(); // Guardar los cambios
+        }
     }
 }

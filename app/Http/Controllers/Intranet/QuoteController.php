@@ -234,9 +234,17 @@ class QuoteController extends ApiController
 
     public function getPerFollow(FollowUp $followUp)
     {
-        $quotes = Quote::where('follow_up_id', $followUp->id)->with('status', 'type', 'inventory.vehicle', 'additionals')->get();
+        $quotes = Quote::where('follow_up_id', $followUp->id)
+            ->with('status', 'type', 'additionals', 'employee.agency')
+            ->with(['inventory' => function($query) {
+                $query->withTrashed(); // Incluye inventarios eliminados
+            }])
+            ->get();
+
         return $this->respond($quotes);
     }
+
+
 
     public function getOptions()
     {
@@ -292,4 +300,5 @@ class QuoteController extends ApiController
         // Devolver el PDF combinado como cadena
         return $pdf->Output('S'); // 'S' para devolver como string
     }
+
 }

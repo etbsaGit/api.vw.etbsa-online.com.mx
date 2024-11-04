@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Intranet;
 
 use Illuminate\Http\Request;
 use App\Models\Intranet\Type;
+use App\Models\Intranet\Quote;
 use App\Models\Intranet\Status;
 use App\Models\Intranet\Vehicle;
 use App\Models\Intranet\Customer;
@@ -14,10 +15,10 @@ use App\Models\Intranet\FailedSale;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\ApiController;
+use App\Mail\FollowUp\followUpMailable;
 use App\Http\Requests\Intranet\FollowUp\NextFollowUpRequest;
 use App\Http\Requests\Intranet\FollowUp\StoreFollowUpRequest;
 use App\Http\Requests\Intranet\FollowUp\AddFeedBackFollowUpRequest;
-use App\Mail\FollowUp\followUpMailable;
 
 class FollowUpController extends ApiController
 {
@@ -247,16 +248,22 @@ class FollowUpController extends ApiController
     public function saleLost(FollowUp $followUp)
     {
         // Obtén el status con el nombre 'Venta perdida'
+        $statusPerdida = Status::where('status_key', 'quote')->where('name', 'Perdida')->first();
+
+        // Obtén el status con el nombre 'Venta perdida'
         $status = Status::where('name', 'Venta perdida')->first();
 
         // Verifica si se encontró el status
-        if ($status === null) {
-            return response()->json(['error' => 'El status "Venta perdida" no se encuentra en la base de datos.'], 404);
+        if ($statusPerdida === null) {
+            return response()->json(['error' => 'El status "Perdida" no se encuentra en la base de datos.'], 404);
         }
 
         // Actualiza el status_id del FollowUp
         $followUp->status_id = $status->id;
         $followUp->save();
+
+        // Actualiza el status_id para todas las quotes relacionadas
+        Quote::where('follow_up_id', $followUp->id)->update(['status_id' => $statusPerdida->id]);
 
         // Asume que 'children' es la relación que contiene los registros relacionados
         // Actualiza el status_id para todos los registros relacionados
@@ -267,6 +274,7 @@ class FollowUpController extends ApiController
 
         return $this->respondSuccess();
     }
+
 
     public function saleWin(FollowUp $followUp)
     {
@@ -300,24 +308,23 @@ class FollowUpController extends ApiController
 
     public function saleActive(FollowUp $followUp)
     {
+        // Obtén el status con el nombre 'Perdida'
+        $statusPerdida = Status::where('status_key', 'quote')->where('name', 'Activa')->first();
+
         // Obtén el status con el nombre 'Venta perdida'
         $status = Status::where('name', 'Activo')->first();
 
         // Verifica si se encontró el status
-        if ($status === null) {
-            return response()->json(['error' => 'El status "Activo" no se encuentra en la base de datos.'], 404);
+        if ($statusPerdida === null) {
+            return response()->json(['error' => 'El status "Perdida" no se encuentra en la base de datos.'], 404);
         }
 
         // Actualiza el status_id del FollowUp
         $followUp->status_id = $status->id;
         $followUp->save();
 
-        // Asume que 'children' es la relación que contiene los registros relacionados
-        // Actualiza el status_id para todos los registros relacionados
-        $followUp->children()->each(function ($child) use ($status) {
-            $child->status_id = $status->id;
-            $child->save();
-        });
+        // Actualiza el status_id para todas las quotes relacionadas
+        Quote::where('follow_up_id', $followUp->id)->update(['status_id' => $statusPerdida->id]);
 
         // Elimina el registro de FailedSale si existe
         $failedSale = FailedSale::where('follow_up_id', $followUp->id)->first();
