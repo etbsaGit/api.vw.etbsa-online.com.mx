@@ -208,10 +208,10 @@
         </tr>
     </table>
 
-    <div class="page-break"></div>
 
 
     @if (isset($images) && count($images) > 0)
+    <div class="page-break"></div>
     @foreach ($images as $image)
         <img src="{{ $image }}" alt="Imagen Adicional" style="width: 100%; height: auto; display: block;">
     @endforeach
