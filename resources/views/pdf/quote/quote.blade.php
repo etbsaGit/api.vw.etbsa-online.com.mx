@@ -122,6 +122,49 @@
         .page-break {
             page-break-after: always;
         }
+
+        /* Estilo general para la tabla */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        /* Estilo para las celdas de la tabla */
+        .table td,
+        .table th {
+            padding: 12px;
+            border: 1px solid #BDC3C7;
+            /* Bordes de color gris claro */
+            text-align: left;
+            color: #2C3E50;
+            /* Color de texto negro para mejor contraste */
+        }
+
+        /* Fondo de las filas de la tabla */
+        .table tr:nth-child(even) {
+            background-color: #ECF0F1;
+            /* Fondo blanco para las filas pares */
+        }
+
+        .table tr:nth-child(odd) {
+            background-color: #D5DBDB;
+            /* Fondo azul claro para las filas impares */
+        }
+
+        /* Encabezado de la tabla */
+        .table th {
+            background-color: #3498DB;
+            /* Un azul claro para el fondo del encabezado */
+            color: white;
+            /* Texto blanco en el encabezado */
+        }
+
+        /* Estilo para los datos de las celdas */
+        .table td {
+            color: #2C3E50;
+            /* Texto en color negro */
+        }
     </style>
 </head>
 
@@ -141,27 +184,72 @@
         condiciones comerciales, esperando se ajusten a sus necesidades.</p>
 
     <h2>Detalles de la Cotización</h2>
-    <ul>
-        <li><strong>Folio de Cotización:</strong> {{ $folio }}</li>
-        <li><strong>Fecha:</strong> {{ $fecha }}</li>
-        <li><strong>Precio Unitario:</strong> ${{ number_format($precio_unitario, 2) }}</li>
-        <li><strong>IVA (16%):</strong> ${{ number_format($iva, 2) }}</li>
-        <li><strong>Precio Total (con IVA):</strong> ${{ number_format($precio_total, 2) }}</li>
-        <li><strong>Condiciones de Pago:</strong> {{ $condiciones_pago }}</li>
-        <li><strong>Fecha de Entrega:</strong> {{ $fecha_entrega }} semanas</li>
-        <li><strong>Vigencia:</strong> {{ $vigencia }}</li>
-    </ul>
+    <table class="table table-bordered">
+        <tr>
+            <td><strong>Folio de Cotización:</strong></td>
+            <td>{{ $folio }}</td>
+        </tr>
+        <tr>
+            <td><strong>Fecha:</strong></td>
+            <td>{{ $fecha }}</td>
+        </tr>
+        <tr>
+            <td><strong>Precio Unitario:</strong></td>
+            <td>${{ number_format($precio_total_sin_iva, 2) }}</td>
+        </tr>
+        <tr>
+            <td><strong>IVA (16%):</strong></td>
+            <td>${{ number_format($iva, 2) }}</td>
+        </tr>
+        <tr>
+            <td><strong>Precio Total (con IVA):</strong></td>
+            <td>${{ number_format($precio_total, 2) }}</td>
+        </tr>
+        <tr>
+            <td><strong>Condiciones de Pago:</strong></td>
+            <td>{{ $condiciones_pago }}</td>
+        </tr>
+        <tr>
+            <td><strong>Fecha de Entrega:</strong></td>
+            <td>{{ $fecha_entrega }} semanas</td>
+        </tr>
+        <tr>
+            <td><strong>Vigencia:</strong></td>
+            <td>{{ $vigencia }}</td>
+        </tr>
+    </table>
 
-    @if (isset($adicionales) && count($adicionales) > 0)
-        <h2>Equipo aliado</h2>
-        <ul>
+    <h2>Detalle del equipo</h2>
+    <table class="table table-bordered">
+        <tr>
+            <td><strong>{{ $modelo }}</strong></td>
+            <td>${{ number_format($precio_unitario, 2) }}</td>
+        </tr>
+        @if (isset($adicionales) && count($adicionales) > 0)
             @foreach ($adicionales as $adicional)
-                <li>
-                    <strong>{{ $adicional->name }}</strong>: {{ $adicional->description }}
-                </li>
+                <tr>
+                    <td><strong>{{ $adicional->name }}</strong></td>
+                    <td>${{ number_format($adicional->price, 2) }}</td>
+                </tr>
             @endforeach
-        </ul>
-    @endif
+        @endif
+    </table>
+
+
+    {{-- @if (isset($adicionales) && count($adicionales) > 0)
+        <h2>Equipo aliado</h2>
+        {{$adicionales}}
+        {{$precio_unitario}}
+        <table class="table table-bordered">
+            @foreach ($adicionales as $adicional)
+                <tr>
+                    <td><strong>{{ $adicional->name }}</strong></td>
+                    <td>${{ $adicional->price }}</td>
+                </tr>
+            @endforeach
+        </table>
+    @endif --}}
+
 
     <div class="page-break"></div>
 
@@ -211,11 +299,11 @@
 
 
     @if (isset($images) && count($images) > 0)
-    <div class="page-break"></div>
-    @foreach ($images as $image)
-        <img src="{{ $image }}" alt="Imagen Adicional" style="width: 100%; height: auto; display: block;">
-    @endforeach
-@endif
+        <div class="page-break"></div>
+        @foreach ($images as $image)
+            <img src="{{ $image }}" alt="Imagen Adicional" style="width: 100%; height: auto; display: block;">
+        @endforeach
+    @endif
 
 
 </body>

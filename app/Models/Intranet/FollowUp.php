@@ -5,6 +5,7 @@ namespace App\Models\Intranet;
 use Carbon\Carbon;
 use App\Traits\Scopes;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -27,9 +28,25 @@ class FollowUp extends Model
         'origin_id',
         'percentage_id',
         'follow_up_id',
+
+        'quote_pdf',
     ];
 
-    protected $appends = ['lastPercentage', 'lastVehicle', 'daysRemaining'];
+    protected $appends = ['lastPercentage', 'lastVehicle', 'daysRemaining','qpdf'];
+
+    public function qpdf(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->quote_pdf ? Storage::disk('s3')->url($this->quote_pdf) : null
+        );
+    }
+
+    protected function defaultPathFolder(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => "intranet/followUp/id_" . $this->follow_up_id,
+        );
+    }
 
     public function getDaysRemainingAttribute()
     {

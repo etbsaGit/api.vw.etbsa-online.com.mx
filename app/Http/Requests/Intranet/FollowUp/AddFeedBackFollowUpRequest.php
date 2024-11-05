@@ -28,6 +28,7 @@ class AddFeedBackFollowUpRequest extends FormRequest
         return [
             'vehicle_id' =>[ 'required','integer','exists:vehicles,id'],
             'feedback' => ['required','string','max:191'],
+            'base64' => ['nullable', 'string'],
         ];
     }
 

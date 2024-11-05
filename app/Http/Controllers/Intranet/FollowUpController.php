@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Intranet;
 
+use App\Traits\UploadFiles;
 use Illuminate\Http\Request;
 use App\Models\Intranet\Type;
 use App\Models\Intranet\Quote;
@@ -16,12 +17,15 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\ApiController;
 use App\Mail\FollowUp\followUpMailable;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\Intranet\FollowUp\NextFollowUpRequest;
 use App\Http\Requests\Intranet\FollowUp\StoreFollowUpRequest;
 use App\Http\Requests\Intranet\FollowUp\AddFeedBackFollowUpRequest;
 
 class FollowUpController extends ApiController
 {
+    use UploadFiles;
+
     public function allFollow()
     {
         $user = Auth::user();
@@ -213,6 +217,16 @@ class FollowUpController extends ApiController
         $validatedData = $request->validated();
 
         $followUp->update($validatedData);
+
+        if (!is_null($request['base64'])) {
+            if ($followUp->quote_pdf) {
+                Storage::disk('s3')->delete($followUp->quote_pdf);
+            }
+            $relativePath  = $this->savedoc($request['base64'], $followUp->default_path_folder);
+            $request['base64'] = $relativePath;
+            $updateData = ['quote_pdf' => $relativePath];
+            $followUp->update($updateData);
+        }
 
         return $this->respond($request);
     }
