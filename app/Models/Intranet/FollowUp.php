@@ -30,6 +30,7 @@ class FollowUp extends Model
         'follow_up_id',
 
         'quote_pdf',
+        'reference_id',
     ];
 
     protected $appends = ['lastPercentage', 'lastVehicle', 'daysRemaining','qpdf'];
@@ -113,6 +114,11 @@ class FollowUp extends Model
     public function percentage()
     {
         return $this->belongsTo(Type::class, 'percentage_id');
+    }
+
+    public function reference()
+    {
+        return $this->belongsTo(Reference::class, 'reference_id');
     }
 
     public function parent()

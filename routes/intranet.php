@@ -19,6 +19,7 @@ use App\Http\Controllers\Intranet\FollowUpController;
 use App\Http\Controllers\Intranet\PositionController;
 use App\Http\Controllers\Intranet\SaleDateController;
 use App\Http\Controllers\Intranet\InventoryController;
+use App\Http\Controllers\Intranet\ReferenceController;
 use App\Http\Controllers\Intranet\AdditionalController;
 use App\Http\Controllers\Intranet\DepartmentController;
 use App\Http\Controllers\Intranet\FailedSaleController;
@@ -55,6 +56,8 @@ Route::middleware(['auth:sanctum', 'cors'])->group(function () {
     Route::post('customers', [CustomerController::class, 'index']);
     Route::get('customer/options', [CustomerController::class, 'getOptions']);
     Route::post('customer/excel', [CustomerController::class, 'insetExcel']);
+    Route::get('customer/employees', [CustomerController::class, 'getEmployeesPerAgency']);
+    Route::post('customers/employee', [CustomerController::class, 'postCustomersEmployee']);
     Route::get('status/key/{key}', [StatusController::class, 'getPerKey']);
     Route::post('employees', [EmployeeController::class, 'index']);
     Route::get('employee/options', [EmployeeController::class, 'getOptions']);
@@ -79,6 +82,7 @@ Route::middleware(['auth:sanctum', 'cors'])->group(function () {
     Route::get('quotes/followUp/{followUp}', [QuoteController::class, 'getPerFollow']);
     Route::get('quotes/options', [QuoteController::class, 'getOptions']);
     Route::get('customerDoc/customer/{customer}', [CustomerDocController::class, 'getPerCustomer']);
+    Route::get('references/customer/{customer}', [ReferenceController::class, 'getPerCustomer']);
 
     // --Reportes--
     Route::post('sales/report/agency/all', [SaleController::class, 'getAgency']);
@@ -109,4 +113,5 @@ Route::middleware(['auth:sanctum', 'cors'])->group(function () {
     Route::apiResource('quote', QuoteController::class);
     Route::apiResource('additional', AdditionalController::class);
     Route::apiResource('customerDoc', CustomerDocController::class);
+    Route::apiResource('reference', ReferenceController::class);
 });

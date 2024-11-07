@@ -75,4 +75,14 @@ class Customer extends Model
     {
         return $this->hasMany(CustomerDoc::class, 'customer_id');
     }
+
+    public function references()
+    {
+        return $this->hasMany(Reference::class, 'customer_id');
+    }
+
+    public function employees()
+    {
+        return $this->belongsToMany(Employee::class, 'p_customer_employee');
+    }
 }

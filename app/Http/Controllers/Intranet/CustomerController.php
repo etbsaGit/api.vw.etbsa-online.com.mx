@@ -7,6 +7,7 @@ use App\Models\Intranet\Type;
 use App\Models\Intranet\State;
 use App\Imports\CustomerImport;
 use App\Models\Intranet\Customer;
+use App\Models\Intranet\Employee;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Controllers\ApiController;
 use App\Http\Requests\Intranet\Customer\PutCustomerRequest;
@@ -20,7 +21,7 @@ class CustomerController extends ApiController
     public function index(Request $request)
     {
         $filters = $request->all();
-        $customer = Customer::filterCustomers($filters)->with('municipality', 'state', 'type')->paginate(10);
+        $customer = Customer::filterCustomers($filters)->with('municipality', 'state', 'type','employees.agency','references')->paginate(10);
         return $this->respond($customer);
     }
 
@@ -87,7 +88,48 @@ class CustomerController extends ApiController
         Excel::import(new CustomerImport, $file);
 
         return $this->respond("Clientes importados con exito");
-
     }
 
+    public function getEmployeesPerAgency()
+    {
+        // Obtener el usuario autenticado
+        $user = auth()->user();
+
+        // Si el usuario es un admin, no filtrar por agencia
+        if ($user->hasRole('Admin')) {
+            $employees = Employee::with('customers')->get();
+        } else {
+            // Obtener la agencia del usuario
+            $agencyId = $user->employee->agency_id;
+            $employees = Employee::where('agency_id', $agencyId)->with('customers')->get();
+        }
+
+        // Preparar los datos para la respuesta
+        $data = [
+            'employees' => $employees,
+        ];
+
+        // Retornar la respuesta con los empleados
+        return $this->respond($data);
+    }
+
+
+    public function postCustomersEmployee(Request $request)
+    {
+
+        // Validación de datos (opcional, dependiendo de tus necesidades)
+        $validated = $request->validate([
+            'employee_id' => 'required|exists:employees,id',
+            'customersAsync' => 'nullable|array',
+            'customersAsync.*' => 'nullable|exists:customers,id'
+        ]);
+
+        // Obtener el empleado por el ID
+        $employee = Employee::findOrFail($request->employee_id);
+
+        // Realizar el sync de los clientes
+        $employee->customers()->sync($request->customersAsync);
+
+        return $this->respondSuccess();
+    }
 }

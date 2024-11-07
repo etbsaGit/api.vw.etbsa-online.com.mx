@@ -101,6 +101,7 @@ class FollowUpController extends ApiController
                 'status',
                 'origin',
                 'percentage',
+                'reference',
                 'children',
                 'children.percentage',
             );
@@ -198,6 +199,7 @@ class FollowUpController extends ApiController
             'status',
             'origin',
             'percentage',
+            'reference',
             'children' => function ($query) {
                 $query->orderBy('date', 'desc'); // Ordenar por fecha del más viejo al más reciente
             },

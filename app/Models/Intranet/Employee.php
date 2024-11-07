@@ -124,4 +124,9 @@ class Employee extends Model
     {
         return $this->hasMany(Quote::class, 'employee_id');
     }
+
+    public function customers()
+    {
+        return $this->belongsToMany(Customer::class, 'p_customer_employee');
+    }
 }

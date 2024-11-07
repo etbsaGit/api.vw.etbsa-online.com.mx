@@ -51,6 +51,7 @@ class StoreFollowUpRequest extends FormRequest
             'status_id' => ['required', 'integer', 'exists:statuses,id'],
             'origin_id' => ['required', 'integer', 'exists:types,id'],
             'percentage_id' => ['required', 'integer', 'exists:types,id'],
+            'reference_id' => ['nullable', 'integer', 'exists:references,id'],
             'next_follow' => ['required', 'array'],
             'next_follow.date' => ['required', 'date'],
             'next_follow.percentage_id' => ['required', 'integer', 'exists:types,id'],
