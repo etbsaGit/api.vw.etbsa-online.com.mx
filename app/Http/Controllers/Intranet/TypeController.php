@@ -14,8 +14,16 @@ class TypeController extends ApiController
      */
     public function index()
     {
-        return $this->respond(Type::get());
+        // Obtener todos los tipos ordenados por type_key
+        $types = Type::orderBy('type_key')->get();
+
+        // Agrupar por 'type_key' y devolver los resultados como un arreglo asociativo
+        $typesArray = $types->groupBy('type_key');
+
+        // Retornar la respuesta con el arreglo
+        return $this->respond($typesArray);
     }
+
 
     /**
      * Store a newly created resource in storage.

@@ -116,7 +116,6 @@ class CustomerController extends ApiController
 
     public function postCustomersEmployee(Request $request)
     {
-
         // Validación de datos (opcional, dependiendo de tus necesidades)
         $validated = $request->validate([
             'employee_id' => 'required|exists:employees,id',

@@ -14,7 +14,14 @@ class StatusController extends ApiController
      */
     public function index()
     {
-        return $this->respond(Status::get());
+        // Obtener todos los tipos ordenados por type_key
+        $statuses = Status::orderBy('status_key')->get();
+
+        // Agrupar por 'status_key' y devolver los resultados como un arreglo asociativo
+        $statusesArray = $statuses->groupBy('status_key');
+
+        // Retornar la respuesta con el arreglo
+        return $this->respond($statusesArray);
     }
 
     /**
