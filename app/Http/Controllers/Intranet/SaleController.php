@@ -67,9 +67,15 @@ class SaleController extends ApiController
             $inventory = Inventory::find($inventoryId);
 
             if ($inventory) {
-                $inventory->delete(); // Elimina el inventario con el ID proporcionado
+                // Establecer 'priority' a null antes de eliminar el inventario
+                $inventory->priority = null;
+                $inventory->save();  // Guardar los cambios en la base de datos
+
+                // Eliminar el inventario con el ID proporcionado
+                $inventory->delete();
             }
         }
+
 
         return $this->respondCreated($sale);
     }
@@ -381,7 +387,7 @@ class SaleController extends ApiController
             $followUpId = $quote->follow_up_id;
 
             $statusFollowGanada = Status::where('status_key', 'followUp')->where('name', 'Venta ganada')->first();
-            $follow = FollowUp::where('id',$followUpId)->first();
+            $follow = FollowUp::where('id', $followUpId)->first();
             $follow->status_id = $statusFollowGanada->id;
             $follow->save();
 

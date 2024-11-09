@@ -29,6 +29,16 @@ class Customer extends Model
         'agent_id',
     ];
 
+    protected $appends = ['lastFollow'];
+
+    public function getLastFollowAttribute()
+    {
+        return $this->followUp()
+                ->with('employee') // Cargar la relación con Employee
+                ->latest() // Ordenar por 'created_at' de forma descendente
+                ->first(); // Obtener el primero (el más reciente)
+    }
+
     public function municipality()
     {
         return $this->belongsTo(Municipality::class, 'municipality_id');

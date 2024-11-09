@@ -64,15 +64,19 @@ class QuoteController extends ApiController
 
         $images = $request['images'];
 
+        $list = Type::where('name', 'Lista')->first();
+        $price = $quote->inventory->prices->firstWhere('type_id', $list->id);  // Si el ID correspondiente a "Lista" es 1
+
         $data = [
             'customer' => $quote->customer->name,
             'folio' => $quote->id,
             'fecha' => $fecha,
-            'precio_unitario' => $quote->amount,
+            'precio_total_sin_iva' => $quote->amount,
             'iva' => ($quote->amount) * 0.16,
             'precio_total' => ($quote->amount) * 1.16,
             'condiciones_pago' => $quote->type->name,
             'fecha_entrega' => $quote->lead_time,
+            'precio_unitario' => $price->price,
             'adicionales' => $quote->additionals,
             'vigencia' => $vigencia,
             'modelo' => $quote->inventory->vehicle->name,
