@@ -39,14 +39,22 @@ class FollowUpController extends ApiController
             ->where('status_id', $activeStatus->id)
             ->whereNull('follow_up_id');
 
-        // Si el usuario es vendedor, filtrar por employee_id del vendedor
+        // Si el usuario es gerente, filtrar los FollowUps por la agencia del gerente
         if ($employee) {
-            // Obtener el ID de la posición de 'Vendedor' (ajusta según tu lógica para obtener este ID)
+            // Obtener el ID de la posición de 'Vendedor' y 'Gerente' (ajusta según tu lógica para obtener estos IDs)
             $vendedorPositionId = Position::where('name', 'Vendedor')->value('id');
+            $gerentePositionId = Position::where('name', 'Gerente')->value('id');
 
-            // Verificar el rol del empleado y ajustar la consulta en consecuencia
+            // Si el usuario es vendedor, filtrar por employee_id del vendedor
             if ($employee->position_id === $vendedorPositionId) {
                 $query->where('employee_id', $employee->id);
+            }
+
+            // Si el usuario es gerente, filtrar los FollowUps por empleados de la misma agencia
+            if ($employee->position_id === $gerentePositionId) {
+                $query->whereHas('employee', function ($q) use ($employee) {
+                    $q->where('agency_id', $employee->agency_id);
+                });
             }
         }
 
@@ -76,6 +84,7 @@ class FollowUpController extends ApiController
 
         return $this->respond($latestChildren->values()->all()); // Retorna el array de children más recientes con relaciones
     }
+
 
 
     /**
@@ -111,13 +120,19 @@ class FollowUpController extends ApiController
 
         // Verificar si el empleado está asociado al usuario
         if ($employee) {
-            // Obtener el ID de la posición de 'Vendedor' (ajusta según tu lógica para obtener este ID)
+            // Obtener el ID de la posición de 'Vendedor' y 'Gerente' (ajusta según tu lógica para obtener estos IDs)
             $vendedorPositionId = Position::where('name', 'Vendedor')->value('id');
+            $gerentePositionId = Position::where('name', 'Gerente')->value('id');
 
             // Verificar el rol del empleado y ajustar la consulta en consecuencia
             if ($employee->position_id === $vendedorPositionId) {
                 // Si el usuario es vendedor, filtrar por employee_id del vendedor
                 $followUpsQuery->where('employee_id', $employee->id);
+            } elseif ($employee->position_id === $gerentePositionId) {
+                // Si el usuario es gerente, filtrar por la agencia del gerente
+                $followUpsQuery->whereHas('employee.agency', function ($query) use ($employee) {
+                    $query->where('id', $employee->agency_id);
+                });
             }
         }
 
@@ -126,6 +141,7 @@ class FollowUpController extends ApiController
 
         return $this->respond($followUps);
     }
+
 
 
 
@@ -154,28 +170,56 @@ class FollowUpController extends ApiController
 
         $customer = $firstFollowUp->customer;
 
-        // Obtén el gerente que tiene la posición "gerente" y está asociado al municipio del cliente
-        $gerente = Employee::whereHas('position', function ($query) {
-            $query->where('positions.name', 'gerente'); // Especifica la tabla 'positions'
-        })
-            ->whereHas('municipalities', function ($query) use ($customer) {
-                $query->where('municipalities.id', $customer->municipality_id); // Especifica la tabla 'municipalities'
+        $employees = $firstFollowUp->customer->employees;
+
+        foreach ($employees as $employee) {
+            // Obtén el gerente que tiene la posición "gerente" y está asociado al municipio del cliente
+            $gerente = Employee::whereHas('position', function ($query) {
+                $query->where('positions.name', 'gerente'); // Especifica la tabla 'positions'
             })
-            ->first();
+                ->whereHas('agency', function ($query) use ($employee) {
+                    $query->where('agency_id', $employee->agency->id); // Especifica la tabla 'municipalities'
+                })
+                ->first();
 
-        if ($gerente) {
-            $to_email = $gerente->user->email;
+            if ($gerente) {
+                $to_email = $gerente->user->email;
 
-            $to_name = $gerente->fullName;
+                $to_name = $gerente->fullName;
 
-            $correo = [
-                'to_name' => $to_name,
-                'follow_up' => $firstFollowUp->load('employee.agency'),
-                'customer' => $customer,
-            ];
+                $correo = [
+                    'to_name' => $to_name,
+                    'follow_up' => $firstFollowUp->load('employee.agency'),
+                    'customer' => $customer,
+                    'employee' => $employee,
+                ];
 
-            Mail::to($to_email)->send(new followUpMailable($correo));
+                Mail::to($to_email)->send(new followUpMailable($correo));
+            }
         }
+
+        // // Obtén el gerente que tiene la posición "gerente" y está asociado al municipio del cliente
+        // $gerente = Employee::whereHas('position', function ($query) {
+        //     $query->where('positions.name', 'gerente'); // Especifica la tabla 'positions'
+        // })
+        //     ->whereHas('municipalities', function ($query) use ($customer) {
+        //         $query->where('municipalities.id', $customer->municipality_id); // Especifica la tabla 'municipalities'
+        //     })
+        //     ->first();
+
+        // if ($gerente) {
+        //     $to_email = $gerente->user->email;
+
+        //     $to_name = $gerente->fullName;
+
+        //     $correo = [
+        //         'to_name' => $to_name,
+        //         'follow_up' => $firstFollowUp->load('employee.agency'),
+        //         'customer' => $customer,
+        //     ];
+
+        //     Mail::to($to_email)->send(new followUpMailable($correo));
+        // }
 
         return $this->respond($firstFollowUp->load('children'));
     }

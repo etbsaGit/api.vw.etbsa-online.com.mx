@@ -12,12 +12,14 @@ use App\Models\Intranet\Status;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Intranet\Customer;
 use App\Models\Intranet\Employee;
+use App\Models\Intranet\FollowUp;
+use App\Models\Intranet\Position;
 use App\Models\Intranet\SaleDate;
 use App\Models\Intranet\Inventory;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\ApiController;
 use App\Http\Requests\Intranet\Sale\PutSaleRequest;
 use App\Http\Requests\Intranet\Sale\StoreSaleRequest;
-use App\Models\Intranet\FollowUp;
 
 class SaleController extends ApiController
 {
@@ -27,13 +29,34 @@ class SaleController extends ApiController
     public function index(Request $request)
     {
         $filters = $request->all();
+        $user = Auth::user();
+        $employee = $user->employee;
+
+        // Inicializar la consulta de Sales
         $salesQuery = Sale::filterSales($filters)
             ->with('status', 'salesChannel', 'type', 'agency', 'customer', 'employee')
             ->orderBy('updated_at', 'desc'); // Ordenar del más reciente al más viejo
 
+        // Verificar si el empleado es un gerente
+        if ($employee) {
+            // Obtener el ID de la posición de 'Gerente' (ajusta según tu lógica para obtener este ID)
+            $gerentePositionId = Position::where('name', 'Gerente')->value('id');
+
+            // Si el empleado es gerente, filtrar por la agencia del gerente
+            if ($employee->position_id === $gerentePositionId) {
+                // Filtrar las ventas por la agencia del gerente
+                $salesQuery->whereHas('employee.agency', function ($query) use ($employee) {
+                    $query->where('id', $employee->agency_id);
+                });
+            }
+        }
+
+        // Obtener los resultados paginados
         $sales = $salesQuery->paginate(10);
+
         return $this->respond($sales);
     }
+
 
     /**
      * Store a newly created resource in storage.

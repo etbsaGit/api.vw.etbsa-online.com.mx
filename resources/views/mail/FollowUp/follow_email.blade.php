@@ -67,8 +67,8 @@
     <div class="container">
         <h1>Hola, {{ $data['to_name'] }}</h1>
 
-        <p>Se acaba de generar un nuevo seguimiento a <span class="highlight">{{ $data['customer']->name }}</span>, cuya
-            dirección pertenece a tus zonas asignadas.</p>
+        <p>Se acaba de generar un nuevo seguimiento a <span class="highlight">{{ $data['customer']->name }}</span>, que
+            esta asignado a <span class="highlight">{{ $data['employee']->fullName }}</span>.</p>
         <p>El modelo de interés es <span class="highlight">{{ $data['follow_up']->vehicle->name }}</span>.</p>
         <p>Favor de ponerte en contacto con <span class="highlight">{{ $data['follow_up']->employee->fullName }}</span>
             de la sucursal <span class="highlight">{{ $data['follow_up']->employee->agency->name }}</span>, quien fue
