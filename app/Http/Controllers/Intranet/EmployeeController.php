@@ -9,13 +9,14 @@ use App\Models\Intranet\Type;
 use App\Models\Intranet\Agency;
 use App\Models\Intranet\Employee;
 use App\Models\Intranet\Position;
+use App\Models\Intranet\Department;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\ApiController;
-use App\Http\Requests\Intranet\Employee\AttachMunicipalitiesRequest;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\Intranet\Employee\PutEmployeeRequest;
 use App\Http\Requests\Intranet\Employee\StoreEmployeeRequest;
-use App\Models\Intranet\Department;
+use App\Http\Requests\Intranet\Employee\AttachMunicipalitiesRequest;
 
 class EmployeeController extends ApiController
 {
@@ -25,10 +26,35 @@ class EmployeeController extends ApiController
      */
     public function index(Request $request)
     {
+        // Obtén el ID de la posición de Gerente
+        $gerentePositionId = Position::where('name', 'Gerente')->value('id');
+
+        // Obtén el usuario autenticado
+        $user = Auth::user();
+
+        // Verifica si el usuario tiene un empleado asociado
+        $employee = $user->employee;
+
+        // Si el usuario tiene un empleado y el empleado tiene la posición de Gerente
+        if ($employee && $employee->position_id == $gerentePositionId) {
+            // Obtén el agency_id del gerente (empleado)
+            $gerenteAgencyId = $employee->agency_id;
+
+            // Agrega el agency_id al request
+            $request->merge(['agency_id' => $gerenteAgencyId]);
+        }
+
+        // Filtra los empleados según los filtros del request
         $filters = $request->all();
-        $employees = Employee::filterEmployees($filters)->with('agency','user','type','position','department')->paginate(10);
+        $employees = Employee::filterEmployees($filters)
+            ->with('agency', 'user', 'type', 'position', 'department')
+            ->paginate(10);
+
+        // Retorna la respuesta con los empleados filtrados
         return $this->respond($employees);
     }
+
+
 
     /**
      * Store a newly created resource in storage.

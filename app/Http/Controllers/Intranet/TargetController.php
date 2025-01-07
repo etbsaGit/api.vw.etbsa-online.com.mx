@@ -31,10 +31,28 @@ class TargetController extends ApiController
         $targets = $request['targets'];
 
         foreach ($targets as $targetData) {
-            Target::create($targetData);
+            // Verificar si ya existe un registro con los mismos datos
+            $existingTarget = Target::where('employee_id', $targetData['employee_id'])
+                ->where('month', $targetData['month'])
+                ->where('year', $targetData['year'])
+                ->where('type_id', $targetData['type_id'])
+                ->first();
+
+            if ($existingTarget) {
+                // Si existe, actualizamos los campos 'quantity' y 'value'
+                $existingTarget->update([
+                    'quantity' => $targetData['quantity'],
+                    'value' => $targetData['value']
+                ]);
+            } else {
+                // Si no existe, creamos un nuevo registro
+                Target::create($targetData);
+            }
         }
+
         return $this->respondSuccess();
     }
+
 
     /**
      * Display the specified resource.
