@@ -12,6 +12,7 @@ use App\Models\Intranet\Customer;
 use App\Models\Intranet\Employee;
 use App\Models\Intranet\FollowUp;
 use App\Models\Intranet\Position;
+use App\Models\Intranet\Additional;
 use App\Models\Intranet\FailedSale;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
@@ -282,8 +283,32 @@ class FollowUpController extends ApiController
      */
     public function destroy(FollowUp $followUp)
     {
-        //
+        // Obtener todos los Quotes relacionados con este FollowUp
+        $quotes = Quote::where('follow_up_id', $followUp->id)->get();
+
+        foreach ($quotes as $quote) {
+            // Eliminar archivos en S3 si existen
+            if ($quote->path) {
+                Storage::disk('s3')->delete($quote->path);
+            }
+
+            // Eliminar los Additionals relacionados con este Quote
+            Additional::where('quote_id', $quote->id)->delete();
+        }
+
+        // Ahora que los Additionals fueron eliminados, eliminar los Quotes
+        Quote::where('follow_up_id', $followUp->id)->delete();
+
+        // Eliminar todos los registros FollowUp relacionados
+        FollowUp::where('follow_up_id', $followUp->id)->delete();
+
+        // Finalmente, eliminar el FollowUp principal
+        $followUp->delete();
+
+
+        return $this->respondSuccess();
     }
+
 
     public function getOptions()
     {
