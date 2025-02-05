@@ -27,7 +27,7 @@ class StoreCustomerRequest extends FormRequest
         return [
             "id_customer" => ['nullable', 'integer', 'unique:customers,id_customer'],
             "name" => ['required', 'string', 'max:255'],
-            "rfc" => ['nullable', 'string', 'min:13', 'max:13', 'unique:customers,rfc'],
+            "rfc" => ['nullable', 'string', 'min:12', 'max:13', 'unique:customers,rfc'],
             "curp" => ['nullable', 'string', 'min:18', 'max:18', 'unique:customers,curp'],
             "phone" => ['nullable', 'numeric', 'digits:10', 'unique:customers,phone'],
             "landline" => ['nullable', 'numeric', 'digits:10', 'unique:customers,landline'],

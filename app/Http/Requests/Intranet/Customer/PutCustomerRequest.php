@@ -28,7 +28,7 @@ class PutCustomerRequest extends FormRequest
         return [
             "id_customer" => ['nullable', 'integer', Rule::unique('customers')->ignore($this->route("customer")->id)],
             "name" => ['required', 'string', 'max:255'],
-            "rfc" => ['nullable', 'string', 'min:13', 'max:13', Rule::unique('customers')->ignore($this->route("customer")->id)],
+            "rfc" => ['nullable', 'string', 'min:12', 'max:13', Rule::unique('customers')->ignore($this->route("customer")->id)],
             "curp" => ['nullable', 'string', 'min:18', 'max:18', Rule::unique('customers')->ignore($this->route("customer")->id)],
             "phone" => ['nullable', 'numeric', 'digits:10', Rule::unique('customers')->ignore($this->route("customer")->id)],
             "landline" => ['nullable', 'numeric', 'digits:10', Rule::unique('customers')->ignore($this->route("customer")->id)],
