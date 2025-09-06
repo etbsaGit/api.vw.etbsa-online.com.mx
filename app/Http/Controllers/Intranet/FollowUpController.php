@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Intranet\Type;
 use App\Models\Intranet\Quote;
 use App\Models\Intranet\Status;
+use App\Exports\FollowUpsExport;
 use App\Models\Intranet\Vehicle;
 use App\Models\Intranet\Customer;
 use App\Models\Intranet\Employee;
@@ -16,9 +17,11 @@ use App\Models\Intranet\Additional;
 use App\Models\Intranet\FailedSale;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Controllers\ApiController;
 use App\Mail\FollowUp\followUpMailable;
 use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Excel as ExcelFormat;
 use App\Http\Requests\Intranet\FollowUp\NextFollowUpRequest;
 use App\Http\Requests\Intranet\FollowUp\StoreFollowUpRequest;
 use App\Http\Requests\Intranet\FollowUp\AddFeedBackFollowUpRequest;
@@ -86,8 +89,6 @@ class FollowUpController extends ApiController
         return $this->respond($latestChildren->values()->all()); // Retorna el array de children más recientes con relaciones
     }
 
-
-
     /**
      * Display a listing of the resource.
      */
@@ -97,53 +98,65 @@ class FollowUpController extends ApiController
         $user = Auth::user();
         $employee = $user->employee;
 
-        // Inicializar la consulta de FollowUps
-        $followUpsQuery = FollowUp::filterFollowUp($filters)
-            ->with(
-                'customer.municipality',
-                'customer.state',
-                'employee.user',
-                'employee.type',
-                'employee.position',
-                'employee.agency',
-                'employee.department',
-                'vehicle',
-                'status',
-                'origin',
-                'percentage',
-                'reference',
-                'children',
-                'children.percentage',
-            );
+        $relations = [
+            'customer.municipality',
+            'customer.state',
+            'employee.user',
+            'employee.type',
+            'employee.position',
+            'employee.agency',
+            'employee.department',
+            'vehicle',
+            'status',
+            'origin',
+            'percentage',
+            'reference',
+            'children',
+            'children.percentage',
+        ];
 
-        // Aplicar el filtro para follow_up_id IS NULL
-        $followUpsQuery->whereNull('follow_up_id');
+        // Aplicar filtros con el scope
+        $matches = FollowUp::filterFollowUp($filters)->get();
 
-        // Verificar si el empleado está asociado al usuario
+        if ($matches->isNotEmpty()) {
+            // Para cada registro, determinar su "padre raíz"
+            $parentIds = $matches->map(function ($match) {
+                return $match->follow_up_id ?: $match->id;
+            })->unique();
+
+            // Traer todos los padres distintos con sus hijos
+            $followUpsQuery = FollowUp::with($relations)
+                ->whereIn('id', $parentIds);
+        } else {
+            // Sin matches, devolver colección vacía
+            $followUpsQuery = FollowUp::query()->whereRaw('1 = 0')->with($relations);
+        }
+
+        // Filtrado por rol del empleado
         if ($employee) {
-            // Obtener el ID de la posición de 'Vendedor' y 'Gerente' (ajusta según tu lógica para obtener estos IDs)
             $vendedorPositionId = Position::where('name', 'Vendedor')->value('id');
-            $gerentePositionId = Position::where('name', 'Gerente')->value('id');
+            $gerentePositionId  = Position::where('name', 'Gerente')->value('id');
 
-            // Verificar el rol del empleado y ajustar la consulta en consecuencia
             if ($employee->position_id === $vendedorPositionId) {
-                // Si el usuario es vendedor, filtrar por employee_id del vendedor
                 $followUpsQuery->where('employee_id', $employee->id);
             } elseif ($employee->position_id === $gerentePositionId) {
-                // Si el usuario es gerente, filtrar por la agencia del gerente
                 $followUpsQuery->whereHas('employee.agency', function ($query) use ($employee) {
                     $query->where('id', $employee->agency_id);
                 });
             }
         }
 
-        // Obtener los resultados paginados
-        $followUps = $followUpsQuery->paginate(10);
+        // 👇 Aquí está el truco para ordenar por el más reciente entre padre e hijos
+        $followUps = $followUpsQuery
+            ->withMax('children as last_child_updated_at', 'updated_at')
+            ->orderByRaw('GREATEST(
+            IFNULL(updated_at, "1970-01-01"),
+            IFNULL(last_child_updated_at, "1970-01-01")
+        ) DESC')
+            ->paginate(10);
 
         return $this->respond($followUps);
     }
-
-
 
 
     /**
@@ -309,7 +322,6 @@ class FollowUpController extends ApiController
         return $this->respondSuccess();
     }
 
-
     public function getOptions()
     {
         $data = [
@@ -359,7 +371,6 @@ class FollowUpController extends ApiController
 
         return $this->respondSuccess();
     }
-
 
     public function saleWin(FollowUp $followUp)
     {
@@ -418,5 +429,78 @@ class FollowUpController extends ApiController
         }
 
         return $this->respondSuccess();
+    }
+
+
+    public function export(Request $request)
+    {
+        $filters = $request->all();
+        $user = Auth::user();
+        $employee = $user->employee;
+
+        $relations = [
+            'customer.municipality',
+            'customer.state',
+            'employee.user',
+            'employee.type',
+            'employee.position',
+            'employee.agency',
+            'employee.department',
+            'vehicle',
+            'status',
+            'origin',
+            'percentage',
+            'reference',
+            // 'children',
+            // 'children.percentage',
+        ];
+
+        $matches = FollowUp::filterFollowUp($filters)->get();
+
+        if ($matches->isNotEmpty()) {
+            $parentIds = $matches->map(function ($match) {
+                return $match->follow_up_id ?: $match->id;
+            })->unique();
+
+            $followUpsQuery = FollowUp::with($relations)
+                ->whereIn('id', $parentIds);
+        } else {
+            $followUpsQuery = FollowUp::query()->whereRaw('1 = 0')->with($relations);
+        }
+
+        if ($employee) {
+            $vendedorPositionId = Position::where('name', 'Vendedor')->value('id');
+            $gerentePositionId  = Position::where('name', 'Gerente')->value('id');
+
+            if ($employee->position_id === $vendedorPositionId) {
+                $followUpsQuery->where('employee_id', $employee->id);
+            } elseif ($employee->position_id === $gerentePositionId) {
+                $followUpsQuery->whereHas('employee.agency', function ($query) use ($employee) {
+                    $query->where('id', $employee->agency_id);
+                });
+            }
+        }
+
+        $followUps = $followUpsQuery
+            ->withMax('children as last_child_updated_at', 'updated_at')
+            ->orderByRaw('GREATEST(
+            IFNULL(updated_at, "1970-01-01"),
+            IFNULL(last_child_updated_at, "1970-01-01")
+        ) DESC')
+            ->get();
+
+
+        // 🔹 Aquí la magia: descarga directa del archivo
+        // return Excel::download(new FollowUpsExport($followUps), 'followups.xlsx');
+
+        // 🔹 Generar Excel en memoria y convertir a Base64
+        $binaryExcel = Excel::raw(new FollowUpsExport($followUps), ExcelFormat::XLSX);
+        $base64 = base64_encode($binaryExcel);
+
+        return response()->json([
+            'file_name' => 'followups.xlsx',
+            'mime_type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'base64'    => $base64,
+        ]);
     }
 }

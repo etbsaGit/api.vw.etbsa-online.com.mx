@@ -118,6 +118,19 @@ trait Scopes
                         $query->where('title', 'LIKE', '%' . $value . '%')
                             ->orWhere('date', 'LIKE', '%' . $value . '%');
                     });
+                } elseif ($key === 'updated_at') {
+                    $query->whereDate('updated_at', '=', $value);
+                } elseif ($key === 'percentage_id') {
+                    // Subquery a la MISMA tabla follow_ups (self join) para el último hijo
+                    $query->whereRaw("
+                    (
+                        select c.percentage_id
+                        from follow_ups c
+                        where c.follow_up_id = follow_ups.id
+                        order by c.date desc
+                        limit 1
+                    ) = ?
+                ", [$value]);
                 } else {
                     $query->where($key, $value);
                 }

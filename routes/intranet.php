@@ -87,6 +87,7 @@ Route::middleware(['auth:sanctum', 'cors'])->group(function () {
     // --Reportes--
     Route::post('sales/report/agency/all', [SaleController::class, 'getAgency']);
     Route::post('sales/report/agency/pdf', [SaleController::class, 'createPDF']);
+    Route::post('follow/excel', [FollowUpController::class, 'export']);
 
     // --Api resourse--
     Route::apiResource('state', StateController::class);
